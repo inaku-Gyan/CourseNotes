@@ -1,0 +1,16 @@
+# Generated course outputs
+*.pdf
+
+# OS and local noise
+.DS_Store
+Thumbs.db
+desktop.ini
+*Zone.Identifier
+
+*.log
+*.tmp
+
+# Editors
+*.swo
+*.swp
+
