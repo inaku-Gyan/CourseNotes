@@ -8,6 +8,12 @@
   date: datetime(year: 2026, month: 09, day: 21),
 )
 
+#let nonumber(body) = math.equation(
+  body,
+  block: true,
+  numbering: none,
+)
+
 = Introduction
 
 == The Amplifier Model
@@ -69,13 +75,18 @@ The 4 models are interchangeable.
     _*Virtual short*_:
 
     $display(
-      v_("I"+) - v_("I"-) = v_"O" / A_v arrow 0
-      quad arrow.double.long quad v_("I"+) = v_("I"-)
+      v_("I"+) - v_("I"-) = v_"O" / A_v = 0
+      quad ==> quad
+      v_("I"+) = v_("I"-)
     )$
 
     _*Virtual open*_:
 
-    $display(i_"I" = (v_("I"+) - v_("I"-)) / R_"I" quad arrow.double.long quad i_"I" = 0)$
+    $display(
+      i_"I" = (v_("I"+) - v_("I"-)) / R_"I"
+      quad ==> quad
+      i_"I" = 0
+    )$
   ],
 )
 
