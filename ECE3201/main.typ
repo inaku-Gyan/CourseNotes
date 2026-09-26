@@ -104,7 +104,7 @@ The 4 models are interchangeable.
 
 By virtual short, $v_1 = v_2 = 0$.
 #sym.space.quad
-Closed-loop gain: $display(A_v = - R_2 / R_1)$.
+Closed-loop gain: $display(G = - R_2 / R_1)$.
 
 === With finite open-loop gain
 
@@ -115,3 +115,12 @@ Closed-loop gain: $display(G = (- R_2 slash R_1) / (1 + (1 + R_2 slash R_1) slas
 
 To minimize the dependence of $G$ on the open-loop gain $A$, we need
 $display((1 + R_2 / R_1) << A)$. Thus also $G << A$.
+
+=== Weighted summer
+
+#align(center, image("assets/Weighted Summer.png", width: 60%))
+
+== Non-Inverting Amplifier
+
+#align(center, image("assets/Non-Inverting Amplifier.png", width: 40%))
+
