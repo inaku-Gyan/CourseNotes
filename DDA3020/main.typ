@@ -1,0 +1,184 @@
+#import "@preview/ilm:2.1.1": *
+
+#set text(lang: "en")
+
+#show: ilm.with(
+  title: [DDA 3020\ Machine Learning],
+  authors: "Yiqing Shao",
+  date: datetime(year: 2026, month: 09, day: 21),
+)
+
+#show heading.where(level: 4): set heading(numbering: none)
+#set math.equation(numbering: none)
+
+#let Vec(v) = $bold(#v)$
+#let UVec(v) = $accent(Vec(#v), hat)$
+
+#let Mat(M) = $bold(#M)$
+
+#let Var = $op("Var")$
+
+= Introduction
+
+#align(center, table(
+  align: center + horizon,
+  columns: 3,
+  rows: 3,
+  [], [Supervised Learning], [Unsupervised Learning],
+  smallcaps([Discrete]), [Classification], [Clustering],
+  smallcaps([Continuous]), [Regression], [Dimensionality Reduction],
+))
+
+= Linear Regression
+
+== Model and Objective
+
+The linear hypothesis function:
+
+$
+  f_Vec(w)(Vec(x)) = Vec(w)^top Vec(x),
+  quad quad "where" quad
+  Vec(w) = vec(w_0, w_1, dots.v, w_d)
+  quad "and" quad
+  Vec(x) = vec(1, x_1, dots.v, x_d)
+$
+
+=== Deterministic Perspective
+
+_*Target*:
+*Minimize the cost/loss* w.r.t. the model parameters._
+
+$
+  hat(Vec(w)) = arg min_Vec(w) 1/m sum_(i=1)^m (f_Vec(w)(Vec(x)_i) - y_i)^2
+$
+where
+- the _loss function_: squared error loss
+- the _cost function_: the empirical risk (the average loss over the training set)
+
+=== Probabilistic Perspective
+
+_*Target*:
+*Maximize the probability of the observed data* w.r.t. the parameters._
+
+Assuming the relationship between the input and output is linear with Gaussian noise:
+
+$
+  y = Vec(w)^top Vec(x) + e,
+  quad quad "where" quad
+  e ~ cal(N)(0, sigma^2)
+$
+where $e$ is called *observation noise* or *residual error*,
+and is independent of the input $Vec(x)$.
+Thus:
+$
+  y | (Vec(x), Vec(w))
+  space ~ space
+  cal(N)(Vec(w)^top Vec(x), sigma^2)
+$
+
+The parameter can be learned by *maximum (log-)likelihood estimation (MLE)*,
+given the training dataset $D = {(Vec(x)_i, y_i)}_(i=1)^m$:
+
+$
+  hat(Vec(w)) = arg max_Vec(w) space log cal(L)(Vec(w); D)
+$
+$
+  "where" quad
+  cal(L)(Vec(w); D) & = product_(i=1)^m cal(N)(y_i; Vec(w)^top Vec(x)_i, sigma^2) \
+                    & = product_(i=1)^m 1 / (sqrt(2 pi) sigma) exp(- (y_i - Vec(w)^top Vec(x)_i)^2 / (2 sigma^2))
+$
+which yields exactly the same solution as the deterministic perspective.
+
+== Learning Algorithm
+
+=== Least Squares
+
+$
+  hat(Vec(y)) = Mat(X) Vec(w)
+  quad quad "where" quad
+  Mat(X) = mat(
+    bar.h, Vec(x)_1^top, bar.h;
+    bar.h, Vec(x)_2^top, bar.h;
+    , dots.v, ;
+    bar.h, Vec(x)_m^top, bar.h
+  ) in RR^(m times (d+1)),
+  quad
+  Vec(w) = vec(w_0, dots.v, w_d) in RR^(d+1).
+$
+$
+  hat(Vec(w)) = arg min_Vec(w) norm(Mat(X) Vec(w) - Vec(y))_2^2
+$
+The least-squares objective is
+$
+        J(Vec(w)) & = ||Mat(X) Vec(w) - Vec(y)||_2^2 \
+                  & = (Mat(X) Vec(w) - Vec(y))^top (Mat(X) Vec(w) - Vec(y)) \
+                  & = Vec(w)^top Mat(X)^top Mat(X) Vec(w) - 2 Vec(y)^top Mat(X) Vec(w) + Vec(y)^top Vec(y) \
+  nabla J(Vec(w)) & = 2 Mat(X)^top Mat(X) Vec(w) - 2 Mat(X)^top Vec(y) \
+$
+The Hessian, $nabla^2 J(Vec(w)) &= 2 Mat(X)^top Mat(X)$,
+is positive semi-definite (SPD), so $J(Vec(w))$ is convex.
+To find the optimal solution, we set the gradient to zero:
+$
+  nabla J(Vec(w)) = 0
+  quad ==> quad
+  Mat(X)^top Mat(X) Vec(w) = Mat(X)^top Vec(y)
+$
+
+If $Mat(X)^top Mat(X)$ is invertible, then
+$
+  hat(Vec(w)) = (Mat(X)^top Mat(X))^(-1) Mat(X)^top Vec(y)
+$
+
+If $Mat(X)^top Mat(X)$ is not invertible,
+it indicates that the columns of $Mat(X)$ are linearly dependent,
+and the solution is not unique.
+The dimension of the feature space can be reduced by removing redundant features.
+
+==== Distributional Properties
+
+The probabilistic assumption
+
+$
+  Vec(y) = Mat(X) Vec(w) + Vec(e),
+  quad quad "where" quad
+  Vec(e) ~ cal(N)(Vec(0), sigma^2 Mat(I)_m)
+$
+
+Then the estimator $hat(Vec(w)) := (Mat(X)^top Mat(X))^(-1) Mat(X)^top Vec(y)$:
+
+$
+  hat(Vec(w)) space ~ space
+  cal(N)(Vec(w), sigma^2 (Mat(X)^top Mat(X))^(-1))
+$
+
+/ Unbiasedness: $EE[hat(Vec(w))] = Vec(w)$.
+
+/ Estimation of noise variance $sigma^2$:
+
+  - $ hat(sigma)^2 = norm(Mat(X) hat(Vec(w)) - Vec(y))_2^2 / (m-d-1) $
+
+  - The _degrees of freedom_, $(m - d - 1)$, is the number of observations minus the number of estimated parameters.
+
+/ Gauss-Markov Theorem:
+
+  - For any *linear unbiased estimator* $tilde(Vec(w))$, $Var(tilde(Vec(w))) succ.eq Var(hat(Vec(w)))$.\
+    In other words, $Var(tilde(Vec(w))) - Var(hat(Vec(w)))$ is a positive semi-definite matrix.
+
+  - An implication: $tr(Var(tilde(Vec(w)))) >= tr(Var(hat(Vec(w)))) = sigma^2 tr((Mat(X)^top Mat(X))^(-1))$,
+    i.e., total variance of $hat(Vec(w))$ is minimized among all linear unbiased estimators.
+
+=== Gradient Descent
+
+$
+  Vec(w)^* = arg min_Vec(w) J(Vec(w)),
+  quad quad
+  J(Vec(w))       & = 1/2 norm(Mat(X) Vec(w) - Vec(y))^2 \
+  nabla J(Vec(w)) & = Mat(X)^top (Mat(X) Vec(w) - Vec(y))
+$
+Iteratively updates the model parameters in the opposite direction of the gradient:
+$
+  Vec(w) quad <- quad
+  Vec(w) - eta nabla J(Vec(w)^k)
+$
+
+
