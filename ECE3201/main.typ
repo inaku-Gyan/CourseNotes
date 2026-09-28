@@ -9,23 +9,23 @@
 )
 
 #set math.equation(numbering: none)
+#show math.equation: math.display
 
 = Introduction
 
 == The Amplifier Model
 
-- Voltage Gain: $display(A_v = v_"O" / v_"I")$
+- Voltage Gain: $A_v = v_"O" / v_"I"$
 
-- Current Gain: $display(A_i = i_"O" / i_"I")$
+- Current Gain: $A_i = i_"O" / i_"I"$
 
 - Power Gain: $A_P = A_v A_i$
 
 Gain expressed in decibels (originally defined for the power gain, i.e., the power ratio):
+- Power Gain: $A_P ("dB") = 10 lg abs(P_"O" / P_"I") = 10 lg abs(A_P)$
 
-- Power Gain: $display(A_P ("dB") = 10 lg abs(P_"O" / P_"I") = 10 lg abs(A_P))$
-
-- Voltage Gain: $display(A_v ("dB") = 20 lg abs(A_v))$
-- Current Gain: $display(A_i ("dB") = 20 lg abs(A_i))$
+- Voltage Gain: $A_v ("dB") = 20 lg abs(A_v)$
+- Current Gain: $A_i ("dB") = 20 lg abs(A_i)$
 
 _Treating `(dB)` as an operator functioning on the value before it._
 
@@ -37,7 +37,7 @@ _Treating `(dB)` as an operator functioning on the value before it._
 - Power balance: $P_"dc" + P_"I" = P_"L" + P_"dissipated"$
 - Total dc power delivered to the amplifier: $P_"dc" = V_"CC" I_"CC" + V_"EE" I_"EE"$
 
-- Amplifier power efficiency: $display(eta := P_"L" / P_"dc" times 100%)$
+- Amplifier power efficiency: $eta := P_"L" / P_"dc" times 100%$
 
 == Symbol Convention
 
@@ -70,19 +70,19 @@ The 4 models are interchangeable.
   [
     _*Virtual short*_:
 
-    $display(
+    $
       v_("I"+) - v_("I"-) = v_"O" / A_v = 0
       quad ==> quad
       v_("I"+) = v_("I"-)
-    )$
+    $
 
     _*Virtual open*_:
 
-    $display(
+    $
       i_"I" = (v_("I"+) - v_("I"-)) / R_"I"
       quad ==> quad
       i_"I" = 0
-    )$
+    $
   ],
 )
 
@@ -91,26 +91,32 @@ The 4 models are interchangeable.
 == Inverting Amplifier
 
 #grid(
-  columns: 2,
-  align: horizon,
-  [#image("assets/Inverting Amplifier.png")], [#image("assets/Inverting Amplifier 2.png")],
+  columns: (1fr, 1.2fr),
+  image("assets/Inverting Amplifier.png"),
+  [
+    *Input impedance*: $R_"I" = R_1$
+
+    *Output impedance*: $R_"O" = 0$\
+    It can be found by setting $v_"I" = 0$.\
+    Implication: the output voltage is independent of the load current.
+  ],
 )
 
 === With infinite open-loop gain
 
 By virtual short, $v_1 = v_2 = 0$.
 #sym.space.quad
-Closed-loop gain: $display(G = - R_2 / R_1)$.
+Closed-loop gain: $G = - R_2 / R_1$.
 
 === With finite open-loop gain
 
 $A$ is finite, so virtual short does not hold.
-$quad display(v_2 - v_1 = v_O / A != 0 quad arrow.double.long quad v_1 = - v_O / A != 0)$.
+$quad v_2 - v_1 = v_O / A != 0 quad ==> quad v_1 = - v_O / A != 0$.
 
-Closed-loop gain: $display(G = (- R_2 slash R_1) / (1 + (1 + R_2 slash R_1) slash A))$.
+Closed-loop gain: $G = (- R_2 slash R_1) / (1 + (1 + R_2 slash R_1) slash A)$.
 
 To minimize the dependence of $G$ on the open-loop gain $A$, we need
-$display((1 + R_2 / R_1) << A)$. Thus also $G << A$.
+$(1 + R_2 / R_1) << A$. Thus also $G << A$.
 
 === Weighted summer
 
@@ -118,5 +124,105 @@ $display((1 + R_2 / R_1) << A)$. Thus also $G << A$.
 
 == Non-Inverting Amplifier
 
-#align(center, image("assets/Non-Inverting Amplifier.png", width: 40%))
+#grid(
+  columns: (1fr, 2fr),
+  image("assets/Non-Inverting Amplifier.png"),
+  [
+    *Input impedance*: $R_"I" = infinity$\
+    For an ideal op amp, no current flows into the input terminals.
+
+    *Output impedance*: $R_"O" = 0$\
+    It can be found by setting $v_"I" = 0$.\
+    Implication: the output voltage is independent of the load current.
+  ],
+)
+
+=== With infinite open-loop gain
+
+By virtual short, $v_1 = v_2 = v_"I"$.
+#sym.space.quad
+Closed-loop gain: $G = 1 + R_2 / R_1$.
+
+=== With finite open-loop gain
+
+$
+  G = (1 + R_2 / R_1) / (1 + (1 + R_2 / R_1) slash A)
+  quad quad quad
+  "Percent gain error: "
+  - (1 + R_2 slash R_1) / (A + 1 + R_2 slash R_1) times 100%
+$
+
+== Voltage Follower: Unity Gain Amplifier
+
+#align(center, image("assets/Voltage Follower.png", width: 80%))
+
+A buffer stage that present infinite input impedance to the source,
+and zero output impedance to the load.
+
+== Difference Amplifiers
+
+#grid(
+  columns: (1fr, 1fr),
+  align: horizon + center,
+  image("assets/Difference Amplifier.png", width: 80%),
+  [
+    with $R_1 = R_3$ and $R_2 = R_4$,
+    $ v_"O" = R_2 / R_1 (v_"I2" - v_"I1") $
+  ],
+)
+
+$
+  "Differential gain: "
+  A_"d" = R_2 / R_1
+  quad quad quad quad
+  "Common-mode gain: "
+  A_"cm" = 0
+$
+
+=== Differential input resistance
+
+Suppose the currents flowing through $R_1$ and $R_3$ are the same.
+
+#image("assets/Differential Input Resistance.png", width: 50%)
+
+Using KVL and virtual short,
+$v_"Id" = R_1 i_"I" + 0 + R_1 i_"I"$,
+we have
+$ "Differential input resistance: " R_"Id" = 2 R_1 $
+
+== Integrators and Differentiators
+
+#grid(
+  columns: (1fr, 1fr),
+  align: center,
+  image("assets/Op-Amp Integrators.png"),
+  [
+    $
+      (V_"O" (j omega)) / (V_"I" (j omega)) = - 1 / (j omega R C) \
+      abs((V_"O" (j omega)) / (V_"I" (j omega))) = 1 / (omega R C)
+      quad quad
+      angle((V_"O" (j omega)) / (V_"I" (j omega))) = pi / 2 \
+      "Integrator freq: "
+      omega_"int" = 1 / (R C)
+      "(0 dB point)"
+    $
+  ],
+)
+
+#grid(
+  columns: (1fr, 1fr),
+  align: center,
+  image("assets/Op-Amp Differentiators.png"),
+  [
+    $
+      (V_"O" (j omega)) / (V_"I" (j omega)) = - j omega R C \
+      abs((V_"O" (j omega)) / (V_"I" (j omega))) = omega R C
+      quad quad
+      angle((V_"O" (j omega)) / (V_"I" (j omega))) = -pi / 2 \
+      "Differentiator time constant: "
+      R C
+    $
+  ],
+)
+
 
