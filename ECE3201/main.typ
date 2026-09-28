@@ -8,11 +8,7 @@
   date: datetime(year: 2026, month: 09, day: 21),
 )
 
-#let nonumber(body) = math.equation(
-  body,
-  block: true,
-  numbering: none,
-)
+#set math.equation(numbering: none)
 
 = Introduction
 
