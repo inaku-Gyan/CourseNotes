@@ -1,15 +1,13 @@
 #import "@preview/ilm:2.1.1": *
-
-#set text(lang: "en")
+#import "../common/style.typ"
 
 #show: ilm.with(
   title: [DDA 3020\ Machine Learning],
   authors: "Yiqing Shao",
-  date: datetime(year: 2026, month: 09, day: 21),
+  date: datetime(year: 2026, month: 09, day: 25),
 )
 
-#show heading.where(level: 4): set heading(numbering: none)
-#set math.equation(numbering: none)
+#show: style.apply
 
 #let Vec(v) = $bold(#v)$
 #let UVec(v) = $accent(Vec(#v), hat)$

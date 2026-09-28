@@ -1,6 +1,5 @@
 #import "@preview/ilm:2.1.1": *
-
-#set text(lang: "en")
+#import "../common/style.typ"
 
 #show: ilm.with(
   title: [ECE 3201\ Introduction to Microelectronic Circuits],
@@ -8,8 +7,7 @@
   date: datetime(year: 2026, month: 09, day: 21),
 )
 
-#set math.equation(numbering: none)
-#show math.equation: math.display
+#show: style.apply
 
 = Introduction
 
