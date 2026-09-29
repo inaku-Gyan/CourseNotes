@@ -18,7 +18,7 @@
 
 = Introduction
 
-#align(center, table(
+#figure(table(
   align: center + horizon,
   columns: 3,
   rows: 3,
@@ -176,7 +176,57 @@ $
 Iteratively updates the model parameters in the opposite direction of the gradient:
 $
   Vec(w) quad <- quad
-  Vec(w) - eta nabla J(Vec(w)^k)
+  Vec(w) - eta nabla J(Vec(w))
 $
 
+#figure(
+  table(
+    columns: (1fr, 1fr),
+    [Closed-form solution], [Gradient descent],
+    [
+      $
+        hat(Vec(w)) quad = quad
+        (Mat(X)^top Mat(X))^(-1) Mat(X)^top Vec(y)
+      $
+    ],
+    [
+      $
+        Vec(w) quad <- quad
+        Vec(w) - eta Mat(X)^top (Mat(X) Vec(w) - Vec(y))
+      $
+    ],
 
+    [ $ cal(O)(d^3 + m d^2) $], [ $ cal(O)(T dot m d) $ ],
+  ),
+)
+
+Gradient descent works well for high-dimensional data,
+i.e., when $d$ is very large.
+
+== Variants
+
+=== Polynomial Regression
+
+For $d$-dimensional input $Vec(x) = mat(x_1, x_2, dots.c, x_d)^top$,
+$
+  f_Vec(w)(Vec(x)) & = w_0 + sum_(i=1)^d w_i x_i
+                     + sum_(i <= j) w_(i j) x_i x_j
+                     + sum_(i <= j <= k) w_(i j k) x_i x_j x_k
+                     + dots.c \
+                   & = Vec(w)^top Vec(phi.alt)(Vec(x))
+$
+$
+  "where" quad
+  Vec(phi.alt)(Vec(x)) & = mat(
+                           1, x_1, dots.c, x_d,
+                           dots.c, x_i x_j, dots.c, x_i x_j x_k, dots.c
+                         )^top \
+                Vec(w) & = mat(
+                           w_0, w_1, dots.c, w_d,
+                           dots.c, w_(i j), dots.c, w_(i j k), dots.c
+                         )^top
+$
+Suppose the highest order of $f_Vec(w)(Vec(x))$ is $p$,
+then the dimension of the feature space is $binom(d+p, d)$.
+(The number of distinct monomials in $f_Vec(w)(Vec(x))$,
+or the dimension of $Vec(w)$.)
