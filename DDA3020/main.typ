@@ -274,5 +274,40 @@ $
                     & = arg min_(Vec(w)) space sum_(i=1)^m (Vec(w)^top Vec(x_i) - y_i)^2 + lambda norm(Vec(w))_2^2
 $
 
+=== Lasso Regression
 
+Replace the Gaussian prior with a Laplace prior on the model parameters:
+$
+  p(Vec(w)) = op("Laplace")(Vec(w); Vec(0), b) = (1 / (2 b))^d exp(- norm(Vec(w))_1 / b)
+$
 
+$
+  hat(Vec(w))_"MAP" & = arg max_(Vec(w)) space sum_(i=1)^m lr([ log p(y | Vec(w); Vec(x)) + log p(Vec(w)) ], size: #200%) \
+                    & = arg min_(Vec(w)) space sum_(i=1)^m (Vec(w)^top Vec(x_i) - y_i)^2 + lambda norm(Vec(w))_1 \
+                    & = arg min_(Vec(w)) space norm(Mat(X) Vec(w) - Vec(y))_2^2 + lambda norm(Vec(w))_1
+$
+
+It is also called $L_1$-regularization.
+It encourages sparse solutions, i.e., many parameters are exactly zero.
+
+=== Robust Linear Regression
+
+When there are a few outliers in the training dataset, which are far from
+most other points, then the learned parameters $w_"MLE"$ will be significantly
+influenced, leading to a very poor fit.
+
+To alleviate the significant influence of outliers, we replace the $L_2$ loss with some other loss function,
+for example:
+
+- The $L_1$ loss (absolute error loss):
+  $ J(Vec(w)) = sum_(i=1)^m abs(Vec(w)^top Vec(x_i) - y_i) $
+
+- The Huber loss:
+  $
+    J(Vec(w)) = sum_(i=1)^m Lambda(Vec(w)^top Vec(x_i) - y_i)
+    quad quad "where" quad
+    Lambda(r) = cases(
+      1/2 r^2 & "if" abs(r) <= delta,
+      delta (abs(r) - 1/2 delta) quad & "otherwise"
+    )
+  $
