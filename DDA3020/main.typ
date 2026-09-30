@@ -67,11 +67,9 @@ $
 $
 where $e$ is called *observation noise* or *residual error*,
 and is independent of the input $Vec(x)$.
-Thus:
+Thus the pdf of $y$ given $Vec(x)$ and $Vec(w)$ is Gaussian:
 $
-  y | (Vec(x), Vec(w))
-  space ~ space
-  cal(N)(Vec(w)^top Vec(x), sigma^2)
+  p(y; Vec(x), Vec(w)) = cal(N)(y; Vec(w)^top Vec(x), sigma^2)
 $
 
 The parameter can be learned by *maximum (log-)likelihood estimation (MLE)*,
@@ -82,7 +80,8 @@ $
 $
 $
   "where" quad
-  cal(L)(Vec(w); D) & = product_(i=1)^m cal(N)(y_i; Vec(w)^top Vec(x)_i, sigma^2) \
+  cal(L)(Vec(w); D) & = product_((Vec(x), y) in D) p(y; Vec(x), Vec(w)) \
+                    & = product_(i=1)^m cal(N)(y_i; Vec(w)^top Vec(x)_i, sigma^2) \
                     & = product_(i=1)^m 1 / (sqrt(2 pi) sigma) exp(- (y_i - Vec(w)^top Vec(x)_i)^2 / (2 sigma^2))
 $
 which yields exactly the same solution as the deterministic perspective.
@@ -230,3 +229,50 @@ Suppose the highest order of $f_Vec(w)(Vec(x))$ is $p$,
 then the dimension of the feature space is $binom(d+p, d)$.
 (The number of distinct monomials in $f_Vec(w)(Vec(x))$,
 or the dimension of $Vec(w)$.)
+
+=== Ridge Regression
+
+Also known as $L_2$-regularized least squares regression.
+
+Compared to the ordinary least squares (OLS) regression,
+ridge regression additionally penalizes large parameter values:
+$
+  J(Vec(w)) = norm(Mat(X) Vec(w) - Vec(y))_2^2 + lambda norm(Vec(w))_2^2 \
+  nabla J(Vec(w)) = 2 Mat(X)^top (Mat(X) Vec(w) - Vec(y)) + 2 lambda Vec(w)
+$
+Setting the gradient to zero yields the closed-form solution:
+$
+  hat(Vec(w))_"ridge" = (Mat(X)^top Mat(X) + lambda Mat(I)_(d+1))^(-1) Mat(X)^top Vec(y)
+$
+
+- For $lambda > 0$, $(Mat(X)^top Mat(X) + lambda Mat(I))$ is always positive definite (PD) and thus invertible.
+
+- The bias term $w_0$ is usually excluded from the regularization.
+
+==== Probabilistic Interpretation
+
+$L_2$-regularization is equivalent to a Gaussian prior on $Vec(w)$.
+
+In the Bayesian framework, the model parameters are treated as random variables.
+(The randomness comes from our uncertainty of the model parameters, not from the observation noise.)
+Therefore, we should consider the conditional distribution of $y$ given $Vec(w)$:
+$ p(y | Vec(w); Vec(x)) = cal(N)(y_i; Vec(w)^top Vec(x)_i, sigma^2) $
+$Vec(x)$ here is a parameter of the function $p$, not a random variable.
+
+Assuming a Gaussian prior on the model parameters:
+$ p(Vec(w)) = cal(N)(Vec(w); Vec(0), tau^2 Mat(I)_(d+1)) $
+Since $Vec(w)$ dose not depend on $Vec(x)$, we have $p(Vec(w); Vec(x)) = p(Vec(w))$.
+Thus the posterior distribution of $Vec(w)$ after observing the training dataset $D$ is
+$
+  p(Vec(w) | y; Vec(x)) & = p(y | Vec(w); Vec(x)) dot p(Vec(w)) / p(y; Vec(x)) \
+$
+
+Maximum a posteriori (MAP) estimation then gives
+$
+  hat(Vec(w))_"MAP" & = arg max_(Vec(w)) space sum_(i=1)^m log p(Vec(w) | y_i; Vec(x_i)) \
+                    & = arg max_(Vec(w)) space sum_(i=1)^m lr([ log p(y | Vec(w); Vec(x)) + log p(Vec(w)) ], size: #200%) \
+                    & = arg min_(Vec(w)) space sum_(i=1)^m (Vec(w)^top Vec(x_i) - y_i)^2 + lambda norm(Vec(w))_2^2
+$
+
+
+
