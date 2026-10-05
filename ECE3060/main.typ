@@ -9,12 +9,12 @@
 
 #show: style.apply
 
-#let Vec(v, f: none) = $attach(accent(#v, arrow), tl: #f)$
-#let UVec(v, f: none) = $attach(accent(#v, hat), tl: #f)$
+#let Vec(v, f: none) = $attach(arrow(#v), tl: #f)$
+#let UVec(v, f: none) = $attach(hat(#v), tl: #f)$
 
-#let Mat(M) = $upright(bold(#M))$
+#let Mat(M, f: none) = $attach(upright(bold(#M)), tl: #f)$
 
-#let Rm(target, f: none) = $attach(Mat(R), tl: #f, br: #target)$
+#let Rm(target, f: none) = $attach(Mat(R, f: #f), br: #target)$
 
 #let Rot(angle, axis) = $op("Rot")_(#axis)(#angle)$
 
@@ -27,6 +27,22 @@
 
 The coordinates of a vector $Vec(p)$ w.r.t. a coordinate frame $Sigma$:
 $quad Vec(p, f: Sigma)$
+
+$
+  Vec(p) = c_1 Vec(x)_Sigma + c_2 Vec(y)_Sigma + c_3 Vec(z)_Sigma
+  = mat(
+    bar, bar, bar;
+    Vec(x)_Sigma, Vec(y)_Sigma, Vec(z)_Sigma;
+    bar, bar, bar;
+    delim: "["
+  )
+  vec(c_1, c_2, c_3, delim: "[")
+  = Mat(E)_Sigma Vec(p, f: Sigma)
+$
+where $Vec(x)_Sigma$, $Vec(y)_Sigma$, and $Vec(z)_Sigma$ are the basis vectors of the frame $Sigma$
+and they are linearly independent (orthonormal for Cartesian $Sigma$).
+$Vec(x)_Sigma$, $Vec(y)_Sigma$, $Vec(z)_Sigma$, and $Vec(p)$ are independent of coordinate frames.
+
 
 === Rotation Matrix
 
@@ -49,20 +65,19 @@ where the columns are the unit direction vectors of the axes of frame $B$ expres
 Rotation matrices are *orthogonal* matrices, i.e.,
 $ Mat(R)^(-1) = Mat(R)^top $
 
-- _Tip:_
 $
-  Vec(p, f: B) & = mat(
-                   bar.h, UVec(x, f: A)_B, bar.h;
-                   bar.h, UVec(y, f: A)_B, bar.h;
-                   bar.h, UVec(z, f: A)_B, bar.h;
-                 )                                & Vec(p, f: A) \
-               & = quad quad (Rm(B, f: A))^top    & Vec(p, f: A) \
-               & = quad quad space.en Rm(A, f: B) & Vec(p, f: A)
+  Vec(p, f: A) & = mat(
+                   bar.h, UVec(x, f: B)_A, bar.h;
+                   bar.h, UVec(y, f: B)_A, bar.h;
+                   bar.h, UVec(z, f: B)_A, bar.h;
+                 )                                & Vec(p, f: B) \
+               & = quad quad (Rm(A, f: B))^top    & Vec(p, f: B) \
+               & = quad quad space.en Rm(B, f: A) & Vec(p, f: B)
 $
 
 === Fundamental Rotations
 
-- Rotations about a single axis.
+i.e., rotations about a single axis.
 
 #align(center, grid(
   align: center + horizon,
