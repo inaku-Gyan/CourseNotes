@@ -1,0 +1,1147 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Denavit–Hartenberg Convention · 4-DOF Demo</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --panel: #121a2d;
+      --panel-2: #18233a;
+      --line: #2d3b5c;
+      --text: #ecf3ff;
+      --muted: #97a8c8;
+      --accent: #6dd6ff;
+      --accent-2: #f6c453;
+      --danger: #ff7b87;
+      --x: #ff5d69;
+      --y: #5ae38d;
+      --z: #5bb7ff;
+      --shadow: 0 20px 60px rgba(0, 0, 0, .28);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+
+    #app {
+      display: grid;
+      grid-template-columns: minmax(325px, 380px) 1fr;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    aside {
+      z-index: 3;
+      overflow: auto;
+      padding: 22px 18px 28px;
+      background: linear-gradient(180deg, rgba(18, 26, 45, .98), rgba(10, 16, 31, .98));
+      border-right: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.15;
+      letter-spacing: -.03em;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .button {
+      cursor: pointer;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: var(--panel-2);
+      color: var(--text);
+      font-size: 12px;
+      transition: border-color .18s ease, background .18s ease, transform .18s ease;
+    }
+
+    .button:hover { border-color: var(--accent); background: #1d2c49; }
+    .button:active { transform: translateY(1px); }
+
+    .section {
+      margin-top: 15px;
+      border-top: 1px solid rgba(91, 113, 155, .27);
+      padding-top: 15px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .01em;
+    }
+
+    .section-title small {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    .joint-list {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+    }
+
+    .joint-button {
+      cursor: pointer;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 6px 8px;
+      background: rgba(24, 35, 58, .7);
+      color: var(--muted);
+      transition: all .18s ease;
+    }
+
+    .joint-button:hover { border-color: var(--accent); color: var(--text); }
+    .joint-button.selected {
+      border-color: var(--accent-2);
+      background: rgba(246, 196, 83, .14);
+      color: var(--accent-2);
+      box-shadow: 0 0 0 1px rgba(246, 196, 83, .12) inset;
+    }
+
+    .joint-button strong { display: block; font-size: 13px; }
+    .joint-button span { display: block; margin-top: 3px; font-size: 10px; }
+
+    .control-card, .formula-card, .table-card {
+      border: 1px solid rgba(91, 113, 155, .32);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(24, 35, 58, .58);
+    }
+
+    .control-card { border-color: rgba(246, 196, 83, .45); }
+
+    .selected-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .selected-heading strong { color: var(--accent-2); font-size: 15px; }
+    .selected-heading span { color: var(--muted); font-size: 11px; }
+
+    .hint {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .param-row {
+      display: grid;
+      grid-template-columns: 62px 1fr;
+      gap: 9px;
+      align-items: center;
+      padding: 8px 0;
+      border-top: 1px solid rgba(91, 113, 155, .2);
+    }
+
+    .param-row:first-of-type { border-top: 0; }
+    .param-symbol { min-width: 0; color: var(--text); }
+    .param-symbol .katex { font-size: 1.03em; }
+    .param-meta { margin-top: 3px; color: var(--muted); font-size: 9px; }
+
+    .param-value {
+      min-width: 62px;
+      border-radius: 6px;
+      padding: 4px 6px;
+      background: rgba(8, 12, 24, .48);
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .param-controls {
+      display: grid;
+      grid-template-columns: 1fr 72px;
+      gap: 7px;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent-2);
+      cursor: pointer;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 5px 6px;
+      outline: none;
+      background: #0d1527;
+      color: var(--text);
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    input[type="number"]:focus { border-color: var(--accent); }
+    .fixed-value { opacity: .67; }
+    .variable-badge, .fixed-badge {
+      display: inline-block;
+      margin-left: 5px;
+      border-radius: 5px;
+      padding: 2px 4px;
+      font-size: 8px;
+      letter-spacing: .04em;
+      vertical-align: middle;
+    }
+    .variable-badge { background: rgba(246, 196, 83, .16); color: var(--accent-2); }
+    .fixed-badge { background: rgba(151, 168, 200, .12); color: var(--muted); }
+
+    .formula-card { overflow-x: auto; }
+    .formula-card .katex-display { margin: .35em 0; text-align: left; }
+    .formula-card .katex { font-size: .98em; }
+    .matrix-label { margin-top: 11px; color: var(--muted); font-size: 10px; }
+
+    .dh-table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 10px; }
+    th, td { border-bottom: 1px solid rgba(91, 113, 155, .2); padding: 7px 4px; text-align: right; white-space: nowrap; }
+    th { color: var(--muted); font-weight: 700; }
+    th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+    td { color: var(--text); font-variant-numeric: tabular-nums; }
+    td.variable { color: var(--accent-2); font-weight: 800; }
+    td.type-r { color: var(--accent); }
+    td.type-p { color: #c58cff; }
+
+    .toggle-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .toggle-row label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+    .toggle-row input { accent-color: var(--accent); }
+
+    #stage {
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at 58% 38%, #172844 0%, #0c1426 48%, #080d1b 100%);
+    }
+
+    #scene { display: block; width: 100%; height: 100%; }
+    #stage > .labelRenderer { z-index: 1; }
+    #stage::after {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      content: "";
+      background: linear-gradient(120deg, rgba(109, 214, 255, .045), transparent 35%, rgba(246, 196, 83, .025));
+    }
+
+    .stage-title {
+      position: absolute;
+      top: 20px;
+      left: 22px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .stage-title > strong { display: block; font-size: 15px; letter-spacing: .01em; }
+    .stage-title > span { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+
+    .stage-hint {
+      position: absolute;
+      right: 18px;
+      bottom: 16px;
+      z-index: 2;
+      pointer-events: none;
+      border: 1px solid rgba(151, 168, 200, .2);
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: rgba(11, 16, 32, .62);
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.45;
+      backdrop-filter: blur(8px);
+    }
+
+    .legend {
+      position: absolute;
+      top: 20px;
+      right: 18px;
+      z-index: 2;
+      pointer-events: none;
+      border: 1px solid rgba(151, 168, 200, .2);
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: rgba(11, 16, 32, .58);
+      color: var(--muted);
+      font-size: 10px;
+      backdrop-filter: blur(8px);
+    }
+    .legend-row { display: flex; align-items: center; gap: 7px; margin: 3px 0; }
+    .swatch { width: 18px; height: 3px; border-radius: 4px; }
+    .swatch.x { background: var(--x); }
+    .swatch.y { background: var(--y); }
+    .swatch.z { background: var(--z); }
+    .swatch.dh { background: var(--accent-2); }
+
+    .world-label {
+      pointer-events: none;
+      border: 1px solid rgba(151, 168, 200, .28);
+      border-radius: 5px;
+      padding: 2px 5px;
+      background: rgba(9, 14, 28, .84);
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1;
+      white-space: nowrap;
+      box-shadow: 0 5px 12px rgba(0, 0, 0, .22);
+      backdrop-filter: blur(4px);
+    }
+    .world-label.frame-label { border-color: rgba(109, 214, 255, .45); color: var(--accent); font-size: 11px; }
+    .world-label.frame-label.selected { border-color: var(--accent-2); color: var(--accent-2); }
+    .world-label.joint-label { border-color: rgba(246, 196, 83, .45); color: var(--accent-2); font-size: 11px; }
+    .world-label.dh-label { border-color: rgba(246, 196, 83, .6); color: #ffe49a; font-size: 12px; }
+
+    @media (max-width: 900px) {
+      body { overflow: auto; }
+      #app { grid-template-columns: 1fr; grid-template-rows: minmax(580px, 67vh) auto; height: auto; min-height: 100vh; }
+      #stage { min-height: 580px; }
+      aside { grid-row: 2; border-right: 0; border-top: 1px solid var(--line); }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside>
+      <div class="toolbar">
+        <button class="button" id="resetPose">↺ Reset pose</button>
+        <button class="button" id="resetView">⌖ Reset view</button>
+      </div>
+
+      <section>
+        <div class="section-title"><span>选择关节 / Select joint</span><small>点击画布或按钮</small></div>
+        <div class="joint-list" id="jointList"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><span>控制面板 / Control panel</span><small>Panel only</small></div>
+        <div class="control-card" id="controlPanel"></div>
+        <div class="toggle-row">
+          <label><input type="checkbox" id="showFrames" checked /> 坐标系</label>
+          <label><input type="checkbox" id="showAnnotations" checked /> D-H 构造</label>
+          <label><input type="checkbox" id="showLabels" checked /> 标签</label>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><span>D-H method</span><small>Craig modified convention</small></div>
+        <div class="formula-card" id="formulaCard"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-title"><span>参数表 / Parameter table</span><small>SI units</small></div>
+        <div class="table-card dh-table-wrap" id="dhTable"></div>
+      </section>
+    </aside>
+
+    <main id="stage">
+      <canvas id="scene"></canvas>
+      <div class="stage-title">
+        <h1>Denavit–Hartenberg Convention</h1>
+        <strong>4-DOF manipulator</strong>
+        <span>Frames \({0}\)–\({4}\) · Modified D-H indexing</span>
+      </div>
+      <div class="legend">
+        <div class="legend-row"><span class="swatch x"></span><span>(x) axis</span></div>
+        <div class="legend-row"><span class="swatch y"></span><span>(y) axis</span></div>
+        <div class="legend-row"><span class="swatch z"></span><span>(z) axis</span></div>
+        <div class="legend-row"><span class="swatch dh"></span><span>D-H annotations</span></div>
+      </div>
+      <div class="stage-hint">点击机械臂选择关节 · 拖动画布旋转视角<br />右键平移 · 滚轮缩放</div>
+    </main>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+    const DEG = Math.PI / 180;
+    const RAD = 180 / Math.PI;
+    const colors = {
+      x: 0xff5d69,
+      y: 0x5ae38d,
+      z: 0x5bb7ff,
+      dh: 0xf6c453,
+      selected: 0xf6c453,
+      link: 0x4e79b7,
+      linkDark: 0x2d4a78,
+      joint: 0x67c9ec,
+      text: 0xecf3ff,
+      muted: 0x97a8c8,
+    };
+
+    const DH = [
+      { type: 'R', a: 0, alpha: 0, d: 0, theta: 90, variable: 'theta', range: [-170, 170], unit: 'deg', initial: 90 },
+      { type: 'R', a: 1.20, alpha: 90, d: 0.5, theta: -30, variable: 'theta', range: [-120, 120], unit: 'deg', initial: -30 },
+      { type: 'P', a: 0.45, alpha: -60, d: 0.75, theta: 0, variable: 'd', range: [0.35, 1.25], unit: 'm', initial: 0.75 },
+      { type: 'R', a: 0.75, alpha: 45, d: 0, theta: 0, variable: 'theta', range: [-180, 180], unit: 'deg', initial: 0 },
+    ];
+
+    // These are rendering-only dimensions. They intentionally do not appear
+    // in the D-H table or the equations.
+    const MODEL = {
+      revoluteRadius: 0.18,
+      revoluteHeight: 0.34,
+      // Hidden model-only offsets h_i. They move each visual joint center
+      // along its own z_i axis without changing the D-H kinematics.
+      jointAxisOffsets: {
+        1: 0.4,
+        2: 0.80,
+        3: 0.12,
+        4: 0.8,
+      },
+      linkWidth: 0.22,
+      prismaticOuterRadius: 0.20,
+      prismaticOuterLength: 0.42,
+      prismaticInnerRadius: 0.13,
+      prismaticBaseExtension: 0.24,
+      prismaticOverlap: 0.18,
+    };
+
+    const stage = document.getElementById('stage');
+    const canvas = document.getElementById('scene');
+    const jointList = document.getElementById('jointList');
+    const controlPanel = document.getElementById('controlPanel');
+    const formulaCard = document.getElementById('formulaCard');
+    const dhTable = document.getElementById('dhTable');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0b1222);
+    scene.fog = new THREE.Fog(0x0b1222, 8, 15);
+
+    const camera = new THREE.PerspectiveCamera(43, 1, 0.05, 100);
+    camera.position.set(4.8, 3.5, 5.8);
+    camera.up.set(0, 1, 0);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.12;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const labelRenderer = new CSS2DRenderer();
+    labelRenderer.domElement.className = 'labelRenderer';
+    labelRenderer.domElement.style.position = 'absolute';
+    labelRenderer.domElement.style.inset = '0';
+    labelRenderer.domElement.style.pointerEvents = 'none';
+    stage.appendChild(labelRenderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.screenSpacePanning = true;
+    controls.minDistance = 2.4;
+    controls.maxDistance = 12;
+    controls.target.set(0.55, 0.55, 0.1);
+    controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
+    controls.mouseButtons.RIGHT = THREE.MOUSE.PAN;
+    controls.touches.ONE = THREE.TOUCH.ROTATE;
+    controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
+
+    scene.add(new THREE.HemisphereLight(0xbfdcff, 0x15203b, 2.1));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 3.1);
+    keyLight.position.set(4, 7, 5);
+    keyLight.castShadow = true;
+    keyLight.shadow.mapSize.set(2048, 2048);
+    keyLight.shadow.camera.left = -5;
+    keyLight.shadow.camera.right = 5;
+    keyLight.shadow.camera.top = 5;
+    keyLight.shadow.camera.bottom = -5;
+    scene.add(keyLight);
+    const rimLight = new THREE.PointLight(0x4bb8ff, 12, 8, 2);
+    rimLight.position.set(-2, 3, -3);
+    scene.add(rimLight);
+
+    const grid = new THREE.GridHelper(10, 20, 0x304263, 0x1c2a46);
+    grid.position.y = -0.19;
+    grid.material.opacity = 0.58;
+    grid.material.transparent = true;
+    scene.add(grid);
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(20, 20),
+      new THREE.MeshStandardMaterial({ color: 0x0c1426, roughness: 0.92, metalness: 0.05 })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -0.2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    const robotGroup = new THREE.Group();
+    const framesGroup = new THREE.Group();
+    const annotationsGroup = new THREE.Group();
+    scene.add(robotGroup, framesGroup, annotationsGroup);
+
+    let selectedJoint = 1;
+    let frameData = [];
+    let pickables = [];
+    let showFrames = true;
+    let showAnnotations = true;
+    let showLabels = true;
+    let pointerDown = null;
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+
+    function rad(degrees) { return degrees * DEG; }
+    function clamp(value, min, max) { return Math.min(max, Math.max(min, value)); }
+    function fmtAngle(value) { return `${value.toFixed(1)}°`; }
+    function fmtLength(value) { return `${value.toFixed(2)} m`; }
+    function displayValue(key, row) { return key === 'alpha' || key === 'theta' ? fmtAngle(row[key]) : fmtLength(row[key]); }
+    function valueLatex(key, index, row) {
+      const value = key === 'alpha' || key === 'theta' ? `${row[key].toFixed(1)}^\\circ` : `${row[key].toFixed(2)}\\,\\mathrm{m}`;
+      const symbol = key === 'alpha' ? `\\alpha_{${index - 1}}` : key === 'a' ? `a_{${index - 1}}` : key === 'theta' ? `\\theta_${index}` : `d_${index}`;
+      return `${symbol}=${value}`;
+    }
+    function symbolLatex(key, index) {
+      if (key === 'alpha') return `\\alpha_{${index - 1}}`;
+      if (key === 'a') return `a_{${index - 1}}`;
+      if (key === 'theta') return `\\theta_${index}`;
+      return `d_${index}`;
+    }
+    function setMath(element, latex, displayMode = false) {
+      element.textContent = '';
+      if (window.katex) {
+        window.katex.render(latex, element, { displayMode, throwOnError: false });
+      } else {
+        element.textContent = latex;
+      }
+    }
+    function makeTextLabel(latex, className = '') {
+      const span = document.createElement('span');
+      span.className = `world-label ${className}`;
+      setMath(span, latex);
+      const label = new CSS2DObject(span);
+      label.center.set(0.5, 0.5);
+      return label;
+    }
+
+    function baseFrameMatrix() {
+      // The world-up direction is Three.js +Y, but z_0 follows the J1 axis.
+      // x_0=world +X, y_0=world +Y, z_0=world +Z keeps the base frame right-handed.
+      return new THREE.Matrix4().makeBasis(
+        new THREE.Vector3(1, 0, 0),
+        new THREE.Vector3(0, 1, 0),
+        new THREE.Vector3(0, 0, 1)
+      );
+    }
+
+    function dhMatrix(row) {
+      // Craig Modified D-H: Rx(alpha) Tx(a) Rz(theta) Tz(d).
+      const result = new THREE.Matrix4().makeRotationX(rad(row.alpha));
+      result.multiply(new THREE.Matrix4().makeTranslation(row.a, 0, 0));
+      result.multiply(new THREE.Matrix4().makeRotationZ(rad(row.theta)));
+      result.multiply(new THREE.Matrix4().makeTranslation(0, 0, row.d));
+      return result;
+    }
+
+    function computeFrames() {
+      const frames = [baseFrameMatrix()];
+      let current = baseFrameMatrix();
+      for (const row of DH) {
+        current = current.clone().multiply(dhMatrix(row));
+        frames.push(current.clone());
+      }
+      return frames;
+    }
+
+    function positionOf(matrix) { return new THREE.Vector3().setFromMatrixPosition(matrix); }
+    function basisOf(matrix, column) { return new THREE.Vector3().setFromMatrixColumn(matrix, column).normalize(); }
+    function jointAxisOffset(index) { return MODEL.jointAxisOffsets[index]; }
+
+    function disposeObject(object) {
+      object.traverse((child) => {
+        // CSS2DRenderer keeps labels in a separate DOM container. Removing the
+        // Three.js object alone leaves stale labels behind after a rebuild.
+        if (child.isCSS2DObject && child.element?.parentNode) {
+          child.element.parentNode.removeChild(child.element);
+        }
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          const materials = Array.isArray(child.material) ? child.material : [child.material];
+          materials.forEach((material) => material.dispose());
+        }
+      });
+    }
+
+    function clearGroup(group) {
+      while (group.children.length) {
+        const child = group.children[group.children.length - 1];
+        child.removeFromParent();
+        disposeObject(child);
+      }
+    }
+
+    function linkMaterial(selected) {
+      return new THREE.MeshStandardMaterial({
+        color: selected ? colors.selected : colors.link,
+        emissive: selected ? 0x5d3b08 : colors.linkDark,
+        emissiveIntensity: selected ? 0.64 : 0.28,
+        metalness: 0.48,
+        roughness: 0.32,
+      });
+    }
+
+    function createLink(start, end, linkIndex, selectableJoint = linkIndex) {
+      const delta = new THREE.Vector3().subVectors(end, start);
+      const length = Math.max(delta.length(), 0.08);
+      const direction = delta.lengthSq() > 1e-8 ? delta.clone().normalize() : new THREE.Vector3(1, 0, 0);
+      const selected = linkIndex === selectedJoint || linkIndex === selectedJoint - 1;
+      const material = linkMaterial(selected);
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(MODEL.linkWidth, length, MODEL.linkWidth), material);
+      mesh.position.copy(start).add(end).multiplyScalar(0.5);
+      mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.userData.jointIndex = selectableJoint;
+      pickables.push(mesh);
+      robotGroup.add(mesh);
+
+      const edge = new THREE.LineSegments(
+        new THREE.EdgesGeometry(mesh.geometry),
+        new THREE.LineBasicMaterial({ color: 0x96b6e6, transparent: true, opacity: 0.34 })
+      );
+      edge.position.copy(mesh.position);
+      edge.quaternion.copy(mesh.quaternion);
+      robotGroup.add(edge);
+      return mesh;
+    }
+
+    function createCylinderSegment(start, end, radius, material, jointIndex) {
+      const delta = new THREE.Vector3().subVectors(end, start);
+      const length = Math.max(delta.length(), 0.06);
+      const direction = delta.lengthSq() > 1e-8 ? delta.clone().normalize() : new THREE.Vector3(0, 1, 0);
+      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, length, 32), material);
+      mesh.position.copy(start).add(end).multiplyScalar(0.5);
+      mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.userData.jointIndex = jointIndex;
+      pickables.push(mesh);
+      robotGroup.add(mesh);
+      return mesh;
+    }
+
+    function createRevoluteJoint(center, axis, jointIndex, selected) {
+      const axisN = axis.clone().normalize();
+      const material = new THREE.MeshStandardMaterial({
+        color: selected ? colors.selected : colors.joint,
+        emissive: selected ? 0x5d3b08 : 0x0b2537,
+        emissiveIntensity: selected ? 0.85 : 0.38,
+        metalness: 0.58,
+        roughness: 0.28,
+      });
+      createCylinderSegment(
+        center.clone().addScaledVector(axisN, -MODEL.revoluteHeight / 2),
+        center.clone().addScaledVector(axisN, MODEL.revoluteHeight / 2),
+        MODEL.revoluteRadius,
+        material,
+        jointIndex
+      );
+      const axisLine = new THREE.ArrowHelper(
+        axisN, center.clone().addScaledVector(axisN, -0.28), 0.56,
+        selected ? colors.selected : 0x6792c4, 0.09, 0.055
+      );
+      axisLine.userData.jointIndex = jointIndex;
+      robotGroup.add(axisLine);
+      pickables.push(axisLine);
+      const jointLabel = makeTextLabel(`J_{${jointIndex}}`, 'joint-label');
+      jointLabel.position.copy(center).add(axisN.clone().multiplyScalar(0.30));
+      robotGroup.add(jointLabel);
+    }
+
+    function createPrismaticJoint(c3, c4, axis, selected) {
+      const axisN = axis.clone().normalize();
+      const outerMaterial = new THREE.MeshStandardMaterial({
+        color: selected ? 0xd19f31 : 0x4a689b,
+        emissive: selected ? 0x5d3b08 : 0x172947,
+        emissiveIntensity: selected ? 0.75 : 0.32,
+        metalness: 0.66,
+        roughness: 0.28,
+      });
+      const innerMaterial = new THREE.MeshStandardMaterial({
+        color: selected ? colors.selected : 0x79a8e6,
+        emissive: selected ? 0x5d3b08 : 0x102b4a,
+        emissiveIntensity: selected ? 0.78 : 0.34,
+        metalness: 0.54,
+        roughness: 0.26,
+      });
+      const outerStart = c3.clone().addScaledVector(axisN, -MODEL.prismaticOuterLength);
+      createCylinderSegment(outerStart, c3, MODEL.prismaticOuterRadius, outerMaterial, 3);
+      const innerStart = c3.clone().addScaledVector(axisN, -MODEL.prismaticOverlap);
+      createCylinderSegment(innerStart, c4, MODEL.prismaticInnerRadius, innerMaterial, 3);
+      const axisLine = new THREE.ArrowHelper(
+        axisN, c3.clone().addScaledVector(axisN, -0.16), 0.32,
+        selected ? colors.selected : 0x6792c4, 0.08, 0.05
+      );
+      axisLine.userData.jointIndex = 3;
+      robotGroup.add(axisLine);
+      pickables.push(axisLine);
+      const jointLabel = makeTextLabel('J_{3}', 'joint-label');
+      jointLabel.position.copy(c3).add(axisN.clone().multiplyScalar(0.18));
+      robotGroup.add(jointLabel);
+    }
+
+    function createBase(origin) {
+      // The pedestal is rendering geometry. Keep it upright in world space;
+      // the D-H z_0 axis may point elsewhere because it follows Joint 1.
+      const axisN = new THREE.Vector3(0, 1, 0);
+      const base = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.34, 0.42, 0.24, 32),
+        new THREE.MeshStandardMaterial({ color: 0x263d64, metalness: 0.72, roughness: 0.25 })
+      );
+      base.position.copy(origin).addScaledVector(axisN, -0.12);
+      base.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), axisN);
+      base.castShadow = true;
+      base.receiveShadow = true;
+      robotGroup.add(base);
+      const baseRing = new THREE.Mesh(
+        new THREE.TorusGeometry(0.37, 0.022, 8, 40),
+        new THREE.MeshBasicMaterial({ color: 0x6dd6ff, transparent: true, opacity: 0.8 })
+      );
+      baseRing.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), axisN);
+      baseRing.position.copy(origin).addScaledVector(axisN, 0.045);
+      robotGroup.add(baseRing);
+    }
+
+    function modelPoints() {
+      const origin0 = positionOf(frameData[0]);
+      const origin2 = positionOf(frameData[2]);
+      const origin4 = positionOf(frameData[4]);
+      const z1 = basisOf(frameData[1], 2);
+      const z2 = basisOf(frameData[2], 2);
+      const z3 = basisOf(frameData[3], 2);
+      const z4 = basisOf(frameData[4], 2);
+      const x2 = basisOf(frameData[2], 0);
+      const c1 = positionOf(frameData[1]).addScaledVector(z1, jointAxisOffset(1));
+      const c2 = origin2.clone().addScaledVector(z2, jointAxisOffset(2));
+      // C3 is the outer sleeve end. It is based on the pre-d3 point, so d3
+      // changes C4 (the inner sleeve end) without dragging the outer housing.
+      const c3 = origin2.clone().addScaledVector(x2, DH[2].a).addScaledVector(z3, jointAxisOffset(3));
+      const c4 = c3.clone().addScaledVector(z3, MODEL.prismaticBaseExtension + DH[2].d);
+      const c5 = origin4.clone().addScaledVector(z4, jointAxisOffset(4));
+      return { origin0, c1, c2, c3, c4, c5, z0: basisOf(frameData[0], 2), z1, z2, z3, z4 };
+    }
+
+    function createFrame(matrix, index, selected) {
+      const frame = new THREE.Group();
+      frame.position.copy(positionOf(matrix));
+      frame.quaternion.setFromRotationMatrix(matrix);
+      frame.visible = showFrames;
+      const axisLength = selected ? 0.46 : 0.36;
+      const axisData = [
+        [new THREE.Vector3(1, 0, 0), colors.x, 'x'],
+        [new THREE.Vector3(0, 1, 0), colors.y, 'y'],
+        [new THREE.Vector3(0, 0, 1), colors.z, 'z'],
+      ];
+      axisData.forEach(([direction, color, symbol]) => {
+        frame.add(new THREE.ArrowHelper(direction, new THREE.Vector3(), axisLength, color, 0.1, 0.055));
+        const label = makeTextLabel(`${symbol}_{${index}}`, `frame-label${selected ? ' selected' : ''}`);
+        label.position.copy(direction).multiplyScalar(axisLength + 0.05);
+        frame.add(label);
+      });
+      const originLabel = makeTextLabel(`\\{${index}\\}`, `frame-label${selected ? ' selected' : ''}`);
+      originLabel.position.set(0.02, 0.04, 0.02);
+      frame.add(originLabel);
+      framesGroup.add(frame);
+    }
+
+    function addArrow(start, end, color, labelLatex, labelOffset = new THREE.Vector3()) {
+      const delta = new THREE.Vector3().subVectors(end, start);
+      const length = delta.length();
+      if (length < 1e-5) return;
+      const direction = delta.clone().normalize();
+      annotationsGroup.add(new THREE.ArrowHelper(direction, start, length, color, 0.12, 0.065));
+      const label = makeTextLabel(labelLatex, 'dh-label');
+      label.position.copy(start).add(end).multiplyScalar(0.5).add(labelOffset);
+      annotationsGroup.add(label);
+    }
+
+    function addZeroMarker(center, axis, color, labelLatex, offset) {
+      const axisN = axis.clone().normalize();
+      const helper = new THREE.ArrowHelper(axisN, center.clone().addScaledVector(axisN, -0.12), 0.24, color, 0.07, 0.045);
+      annotationsGroup.add(helper);
+      const label = makeTextLabel(labelLatex, 'dh-label');
+      label.position.copy(center).add(offset);
+      annotationsGroup.add(label);
+    }
+
+    function addArc(center, axis, startDirection, angle, color, labelLatex, labelOffset) {
+      const axisN = axis.clone().normalize();
+      let radial = startDirection.clone().projectOnPlane(axisN);
+      if (radial.lengthSq() < 1e-8) radial = new THREE.Vector3(1, 0, 0).projectOnPlane(axisN);
+      radial.normalize();
+      const radius = 0.30;
+      const visibleAngle = Math.abs(angle) < 1e-4 ? 0.45 : angle;
+      const segments = 32;
+      const points = [];
+      const quaternion = new THREE.Quaternion();
+      for (let j = 0; j <= segments; j += 1) {
+        const t = j / segments;
+        const point = radial.clone();
+        quaternion.setFromAxisAngle(axisN, visibleAngle * t);
+        point.applyQuaternion(quaternion).multiplyScalar(radius).add(center);
+        points.push(point);
+      }
+      const line = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(points),
+        new THREE.LineBasicMaterial({ color, transparent: true, opacity: Math.abs(angle) < 1e-4 ? 0.46 : 0.92 })
+      );
+      annotationsGroup.add(line);
+
+      const endRadial = points[points.length - 1].clone().sub(center).normalize();
+      const tangent = axisN.clone().cross(endRadial).multiplyScalar(Math.sign(visibleAngle) || 1).normalize();
+      const arrowStart = points[points.length - 1].clone().addScaledVector(tangent, -0.14);
+      annotationsGroup.add(new THREE.ArrowHelper(tangent, arrowStart, 0.14, color, 0.08, 0.05));
+      const labelPoint = points[Math.floor(points.length * 0.56)].clone().add(labelOffset);
+      const label = makeTextLabel(labelLatex, 'dh-label');
+      label.position.copy(labelPoint);
+      annotationsGroup.add(label);
+    }
+
+    function renderAnnotations() {
+      const jointIndex = selectedJoint;
+      const row = DH[jointIndex - 1];
+      const previous = frameData[jointIndex - 1];
+      const current = frameData[jointIndex];
+      const origin = positionOf(previous);
+      const currentOrigin = positionOf(current);
+      const xPrevious = basisOf(previous, 0);
+      const zPrevious = basisOf(previous, 2);
+      const zCurrent = basisOf(current, 2);
+      const aPoint = origin.clone().addScaledVector(xPrevious, row.a);
+      const alphaLabelOffset = xPrevious.clone().multiplyScalar(0.08);
+      const thetaLabelOffset = zCurrent.clone().multiplyScalar(0.08);
+
+      addArc(origin, xPrevious, zPrevious, rad(row.alpha), colors.dh, valueLatex('alpha', jointIndex, row), alphaLabelOffset);
+      if (Math.abs(row.a) > 1e-4) {
+        addArrow(origin, aPoint, colors.dh, valueLatex('a', jointIndex, row), zPrevious.clone().multiplyScalar(0.10));
+      } else {
+        addZeroMarker(origin, xPrevious, colors.dh, valueLatex('a', jointIndex, row), zPrevious.clone().multiplyScalar(0.18));
+      }
+      addArc(aPoint, zCurrent, xPrevious, rad(row.theta), colors.dh, valueLatex('theta', jointIndex, row), thetaLabelOffset);
+      if (Math.abs(row.d) > 1e-4) {
+        addArrow(aPoint, currentOrigin, colors.dh, valueLatex('d', jointIndex, row), xPrevious.clone().multiplyScalar(0.06));
+      } else {
+        addZeroMarker(aPoint, zCurrent, colors.dh, valueLatex('d', jointIndex, row), xPrevious.clone().multiplyScalar(0.18));
+      }
+
+      // A short translucent guide makes the selected D-H normal easy to follow.
+      const guide = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([origin, aPoint, currentOrigin]),
+        new THREE.LineDashedMaterial({ color: colors.dh, dashSize: 0.06, gapSize: 0.045, transparent: true, opacity: 0.42 })
+      );
+      guide.computeLineDistances();
+      annotationsGroup.add(guide);
+
+      // Keep the current x/z directions visible at the selected construction points.
+      annotationsGroup.add(new THREE.ArrowHelper(xPrevious, aPoint, 0.28, colors.x, 0.07, 0.04));
+      annotationsGroup.add(new THREE.ArrowHelper(zCurrent, currentOrigin, 0.28, colors.z, 0.07, 0.04));
+    }
+
+    function setGroupLabelsVisible(group, visible) {
+      group.traverse((child) => {
+        if (!child.isCSS2DObject) return;
+        child.visible = visible;
+        if (child.element) child.element.style.display = visible ? '' : 'none';
+      });
+    }
+
+    function updateLabelVisibility() {
+      labelRenderer.domElement.style.display = showLabels ? '' : 'none';
+      setGroupLabelsVisible(framesGroup, showLabels && showFrames);
+      setGroupLabelsVisible(annotationsGroup, showLabels && showAnnotations);
+      setGroupLabelsVisible(robotGroup, showLabels);
+    }
+
+    function rebuildScene() {
+      frameData = computeFrames();
+      pickables = [];
+      clearGroup(robotGroup);
+      clearGroup(framesGroup);
+      clearGroup(annotationsGroup);
+      const points = modelPoints();
+      createBase(points.origin0);
+
+      // Physical links are independent of the D-H construction lines.
+      createLink(points.c1, points.c2, 1, 1);
+      createLink(points.c2, points.c3, 2, 2);
+      createLink(points.c4, points.c5, 4, 4);
+
+      createRevoluteJoint(points.c1, points.z1, 1, selectedJoint === 1);
+      createRevoluteJoint(points.c2, points.z2, 2, selectedJoint === 2);
+      createPrismaticJoint(points.c3, points.c4, points.z3, selectedJoint === 3);
+      createRevoluteJoint(points.c5, points.z4, 4, selectedJoint === 4);
+
+      for (let i = 0; i < frameData.length; i += 1) {
+        createFrame(frameData[i], i, i === selectedJoint - 1 || i === selectedJoint);
+      }
+      renderAnnotations();
+      framesGroup.visible = showFrames;
+      annotationsGroup.visible = showAnnotations;
+      updateLabelVisibility();
+    }
+
+    function updateTable() {
+      dhTable.innerHTML = `
+        <table>
+          <thead><tr>
+            <th><span class="math"></span></th><th>type</th><th><span class="math"></span></th><th><span class="math"></span></th><th><span class="math"></span></th><th><span class="math"></span></th>
+          </tr></thead>
+          <tbody>${DH.map((row, index) => {
+            const i = index + 1;
+            const valueCell = (key) => `<td class="${row.variable === key ? 'variable' : ''}" data-cell="${key}-${i}">${displayValue(key, row)}</td>`;
+            return `<tr><td>${i}</td><td class="type-${row.type.toLowerCase()}">${row.type}</td>${valueCell('a')}${valueCell('alpha')}${valueCell('d')}${valueCell('theta')}</tr>`;
+          }).join('')}</tbody>
+        </table>`;
+      const headers = dhTable.querySelectorAll('thead .math');
+      // The type column is plain text; only the other five header cells contain .math spans.
+      ['i', 'a_{i-1}', '\\alpha_{i-1}', 'd_i', '\\theta_i'].forEach((latex, index) => setMath(headers[index], latex));
+    }
+
+    function updateTableValues() {
+      DH.forEach((row, index) => {
+        const i = index + 1;
+        ['a', 'alpha', 'd', 'theta'].forEach((key) => {
+          const cell = dhTable.querySelector(`[data-cell="${key}-${i}"]`);
+          if (cell) cell.textContent = displayValue(key, row);
+        });
+      });
+    }
+
+    function renderJointList() {
+      jointList.innerHTML = DH.map((row, index) => {
+        const i = index + 1;
+        return `<button class="joint-button${i === selectedJoint ? ' selected' : ''}" data-joint="${i}"><strong>Joint ${i}</strong><span>${row.type === 'R' ? 'revolute' : 'prismatic'}</span></button>`;
+      }).join('');
+      jointList.querySelectorAll('[data-joint]').forEach((button) => {
+        button.addEventListener('click', () => selectJoint(Number(button.dataset.joint)));
+      });
+    }
+
+    function updateControlValues() {
+      const row = DH[selectedJoint - 1];
+      controlPanel.querySelectorAll('[data-value-key]').forEach((element) => {
+        const key = element.dataset.valueKey;
+        element.textContent = displayValue(key, row);
+      });
+      const input = controlPanel.querySelector('[data-variable-input]');
+      const number = controlPanel.querySelector('[data-variable-number]');
+      if (input) input.value = row[row.variable];
+      if (number && document.activeElement !== number) number.value = row[row.variable];
+    }
+
+    function renderControlPanel() {
+      const row = DH[selectedJoint - 1];
+      const symbol = row.variable === 'theta' ? `\\theta_${selectedJoint}` : `d_${selectedJoint}`;
+      const rangeStep = row.variable === 'theta' ? '0.1' : '0.01';
+      const sliderMin = row.range[0];
+      const sliderMax = row.range[1];
+      controlPanel.innerHTML = `
+        <div class="selected-heading"><strong>Joint ${selectedJoint}</strong><span>${row.type === 'R' ? 'revolute' : 'prismatic'}</span></div>
+        <p class="hint">画布只改变视角。当前可变参数为 <span class="current-symbol"></span>。</p>
+        ${['alpha', 'a', 'theta', 'd'].map((key) => {
+          const variable = row.variable === key;
+          return `<div class="param-row">
+            <div class="param-symbol"><span class="symbol"></span><div class="param-meta">${key === 'alpha' ? 'link twist' : key === 'a' ? 'link length' : key === 'theta' ? 'joint angle' : 'link offset'}</div></div>
+            <div>
+              <div class="param-value${variable ? '' : ' fixed-value'}"><span data-value-key="${key}">${displayValue(key, row)}</span>${variable ? '<span class="variable-badge">variable</span>' : '<span class="fixed-badge">fixed</span>'}</div>
+              ${variable ? `<div class="param-controls"><input type="range" min="${sliderMin}" max="${sliderMax}" step="${rangeStep}" value="${row[key]}" data-variable-input aria-label="${key} slider" /><input type="number" min="${sliderMin}" max="${sliderMax}" step="${rangeStep}" value="${row[key]}" data-variable-number aria-label="${key} value" /></div>` : ''}
+            </div>
+          </div>`;
+        }).join('')}`;
+      setMath(controlPanel.querySelector('.current-symbol'), symbol);
+      const symbols = controlPanel.querySelectorAll('.param-symbol .symbol');
+      ['alpha', 'a', 'theta', 'd'].forEach((key, index) => setMath(symbols[index], symbolLatex(key, selectedJoint)));
+
+      const slider = controlPanel.querySelector('[data-variable-input]');
+      const number = controlPanel.querySelector('[data-variable-number]');
+      const applyValue = (raw) => {
+        const parsed = Number(raw);
+        if (!Number.isFinite(parsed)) return;
+        const next = clamp(parsed, row.range[0], row.range[1]);
+        row[row.variable] = next;
+        updateControlValues();
+        updateTableValues();
+        updateFormula();
+        rebuildScene();
+      };
+      slider?.addEventListener('input', (event) => applyValue(event.target.value));
+      number?.addEventListener('change', (event) => applyValue(event.target.value));
+    }
+
+    function matrixRows(matrix) {
+      const e = matrix.elements;
+      return [
+        [e[0], e[4], e[8], e[12]],
+        [e[1], e[5], e[9], e[13]],
+        [e[2], e[6], e[10], e[14]],
+        [e[3], e[7], e[11], e[15]],
+      ];
+    }
+
+    function matrixLatex(matrix) {
+      return `\\begin{bmatrix}${matrixRows(matrix).map((row) => row.map((value) => value.toFixed(3)).join(' & ')).join(' \\\\ ')}\\end{bmatrix}`;
+    }
+
+    function updateFormula() {
+      const index = selectedJoint;
+      const row = DH[index - 1];
+      const matrix = dhMatrix(row);
+      formulaCard.innerHTML = '<div class="formula-main"></div><div class="matrix-label">当前数值矩阵 / Current numeric matrix</div><div class="formula-matrix"></div>';
+      setMath(formulaCard.querySelector('.formula-main'), String.raw`{}^{${index - 1}}\!T_${index}=R_x(\alpha_{${index - 1}})\,T_x(a_{${index - 1}})\,R_z(\theta_${index})\,T_z(d_${index})`, true);
+      setMath(formulaCard.querySelector('.formula-matrix'), matrixLatex(matrix), true);
+    }
+
+    function updateAllUI(rebuildPanel = false) {
+      renderJointList();
+      if (rebuildPanel) renderControlPanel();
+      else updateControlValues();
+      updateTable();
+      updateFormula();
+      rebuildScene();
+    }
+
+    function selectJoint(index) {
+      if (index < 1 || index > DH.length) return;
+      selectedJoint = index;
+      updateAllUI(true);
+    }
+
+    function resetPose() {
+      DH.forEach((row) => { row[row.variable] = row.initial; });
+      updateAllUI(false);
+    }
+
+    function resetView() {
+      camera.position.set(4.8, 3.5, 5.8);
+      controls.target.set(0.55, 0.55, 0.1);
+      controls.update();
+    }
+
+    document.getElementById('resetPose').addEventListener('click', resetPose);
+    document.getElementById('resetView').addEventListener('click', resetView);
+    document.getElementById('showFrames').addEventListener('change', (event) => {
+      showFrames = event.target.checked;
+      framesGroup.visible = showFrames;
+      updateLabelVisibility();
+    });
+    document.getElementById('showAnnotations').addEventListener('change', (event) => {
+      showAnnotations = event.target.checked;
+      annotationsGroup.visible = showAnnotations;
+      updateLabelVisibility();
+    });
+    document.getElementById('showLabels').addEventListener('change', (event) => {
+      showLabels = event.target.checked;
+      updateLabelVisibility();
+    });
+
+    canvas.addEventListener('contextmenu', (event) => event.preventDefault());
+    canvas.addEventListener('pointerdown', (event) => {
+      pointerDown = { x: event.clientX, y: event.clientY };
+    });
+    canvas.addEventListener('pointerup', (event) => {
+      if (!pointerDown) return;
+      const distance = Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y);
+      pointerDown = null;
+      if (distance > 6) return;
+      const bounds = canvas.getBoundingClientRect();
+      pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+      pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const intersections = raycaster.intersectObjects(pickables, true);
+      if (intersections.length) {
+        let hit = intersections[0].object;
+        while (hit && hit.userData.jointIndex == null) hit = hit.parent;
+        if (hit) selectJoint(hit.userData.jointIndex);
+      }
+    });
+
+    function resize() {
+      const width = stage.clientWidth;
+      const height = stage.clientHeight;
+      camera.aspect = width / Math.max(height, 1);
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height, false);
+      labelRenderer.setSize(width, height);
+    }
+    window.addEventListener('resize', resize);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+      labelRenderer.render(scene, camera);
+    }
+
+    updateAllUI(true);
+    resize();
+    animate();
+
+    window.addEventListener('load', () => {
+      if (window.renderMathInElement) {
+        window.renderMathInElement(document.body, {
+          delimiters: [
+            { left: '\\(', right: '\\)', display: false },
+            { left: '\\[', right: '\\]', display: true },
+          ],
+          throwOnError: false,
+        });
+      }
+      // Rebuild labels after CDN math assets are ready, so every scene label is typeset.
+      updateAllUI(false);
+    });
+  </script>
+</body>
+</html>
