@@ -20,8 +20,6 @@
 
 = Frames and Transformations
 
-== Vectors and Coordinate Frames
-
 - Coordinate Frames
 - Cartesian Coordinate Frames
 
@@ -34,9 +32,8 @@ $
     bar, bar, bar;
     Vec(x)_Sigma, Vec(y)_Sigma, Vec(z)_Sigma;
     bar, bar, bar;
-    delim: "["
   )
-  vec(c_1, c_2, c_3, delim: "[")
+  vec(c_1, c_2, c_3)
   = Mat(E)_Sigma Vec(p, f: Sigma)
 $
 where $Vec(x)_Sigma$, $Vec(y)_Sigma$, and $Vec(z)_Sigma$ are the basis vectors of the frame $Sigma$
@@ -44,7 +41,7 @@ and they are linearly independent (orthonormal for Cartesian $Sigma$).
 $Vec(x)_Sigma$, $Vec(y)_Sigma$, $Vec(z)_Sigma$, and $Vec(p)$ are independent of coordinate frames.
 
 
-=== Rotation Matrix
+== Rotation Matrix
 
 Suppose $A$ and $B$ are two orthogonal coordinate frames with the same origin.
 
@@ -63,9 +60,9 @@ $
 where the columns are the unit direction vectors of the axes of frame $B$ expressed in frame $A$.
 
 Rotation matrices are *orthogonal* matrices, i.e.,
-$ Mat(R)^(-1) = Mat(R)^top $
-
 $
+  Mat(R)^(-1) = Mat(R)^top
+  quad quad quad quad
   Vec(p, f: A) & = mat(
                    bar.h, UVec(x, f: B)_A, bar.h;
                    bar.h, UVec(y, f: B)_A, bar.h;
@@ -73,6 +70,38 @@ $
                  )                                & Vec(p, f: B) \
                & = quad quad (Rm(A, f: B))^top    & Vec(p, f: B) \
                & = quad quad space.en Rm(B, f: A) & Vec(p, f: B)
+$
+
+==== Constraints and Properties
+
+#grid(
+  columns: (1fr, 2fr),
+  [
+    For any $Mat(R) = mat(bar, bar, bar; Vec(x), Vec(y), Vec(z); bar, bar, bar)$:
+  ],
+  [
+    - $det(Mat(R)) = 1$
+    - $Vec(x) dot Vec(y) = 0, quad Vec(x) dot Vec(z) = 0, quad Vec(y) dot Vec(z) = 0$
+    - $Vec(x) times Vec(y) = Vec(z), quad Vec(y) times Vec(z) = Vec(x), quad Vec(z) times Vec(x) = Vec(y)$
+    - $norm(Vec(x)) = 1, quad norm(Vec(y)) = 1, quad norm(Vec(z)) = 1$
+  ],
+)
+
+=== Rotation about Reference Frames
+
+If frame $C$ is obtained by rotating frame $B$ by $text(Mat(R), fill: #blue)$ w.r.t. frame $B$, then
+$
+  Rm(C, f: A) = Rm(B, f: A) text(Mat(R), fill: #blue)
+  quad quad "and" quad quad
+  Rm(C, f: B) = text(Mat(R), fill: #blue)
+$
+
+If frame $C$ is obtained by rotating frame $B$ by $text(Mat(R), fill: #blue)$ w.r.t. frame $A$, then
+$
+  quad quad quad quad quad
+  Rm(C, f: A) = text(Mat(R), fill: #blue) Rm(B, f: A)
+  quad quad "and" quad quad
+  Rm(C, f: B) = Rm(B, f: A)^(-1) text(Mat(R), fill: #blue) Rm(B, f: A)
 $
 
 === Fundamental Rotations
@@ -116,3 +145,34 @@ i.e., rotations about a single axis.
     $
   ],
 ))
+
+=== Equivalent Angle-Axis
+
+Any rotation matrix can be represented by a rotation of angle $phi.alt$ about an equivalent axis $Vec(u)$,
+and $(Vec(u), phi.alt)$ is called the *equivalent angle-axis* of the rotation matrix.
+
+For $quad Vec(u) = vec(u_1, u_2, u_3), quad
+Mat(R)(Vec(u), phi.alt) = mat(
+  r_11, r_12, r_13;
+  r_21, r_22, r_23;
+  r_31, r_32, r_33;
+),quad$ and $quad Mat(U) = mat(
+  0, -u_3, u_2;
+  u_3, 0, -u_1;
+  -u_2, u_1, 0;
+)$:
+$
+  Mat(R)(Vec(u), phi.alt) & = Mat(I) + (sin phi.alt) Mat(U) + (1 - cos phi.alt) Mat(U)^2 \
+                          & = mat(
+                              u_1^2 v_phi.alt + c_phi.alt, u_1 u_2 v_phi.alt - u_3 s_phi.alt, u_1 u_3 v_phi.alt + u_2 s_phi.alt;
+                              u_1 u_2 v_phi.alt + u_3 s_phi.alt, u_2^2 v_phi.alt + c_phi.alt, u_2 u_3 v_phi.alt - u_1 s_phi.alt;
+                              u_1 u_3 v_phi.alt - u_2 s_phi.alt, u_2 u_3 v_phi.alt + u_1 s_phi.alt, u_3^2 v_phi.alt + c_phi.alt;
+                            )
+$
+where $c_phi.alt = cos phi.alt, quad s_phi.alt = sin phi.alt, quad v_phi.alt = 1 - cos phi.alt$.
+$
+  phi.alt = arccos((tr(Mat(R)) - 1) / 2)
+  quad quad "and" quad quad
+  Vec(u) = 1 / (2 sin phi.alt) vec(r_32 - r_23, r_13 - r_31, r_21 - r_12)
+$
+where $tr(Mat(R)) = r_11 + r_22 + r_33$ is the trace of the rotation matrix.
