@@ -15,6 +15,7 @@
 #let Mat(M, f: none) = $attach(upright(bold(#M)), tl: #f)$
 
 #let Rm(target, f: none) = $attach(Mat(R, f: #f), br: #target)$
+#let Tm(target, f: none) = $attach(Mat(T, f: #f), br: #target)$
 
 #let Rot(angle, axis) = $op("Rot")_(#axis)(#angle)$
 
@@ -87,7 +88,12 @@ $
   ],
 )
 
-=== Rotation about Reference Frames
+=== Arithmetic
+
+$
+  Rm(A, f: C) = Rm(B, f: C) Rm(A, f: B)
+  quad quad quad quad Rm(A, f: B)^top = Rm(A, f: B)^(-1) = Rm(B, f: A)
+$
 
 If frame $C$ is obtained by rotating frame $B$ by $text(Mat(R), fill: #blue)$ w.r.t. frame $B$, then
 $
@@ -176,3 +182,48 @@ $
   Vec(u) = 1 / (2 sin phi.alt) vec(r_32 - r_23, r_13 - r_31, r_21 - r_12)
 $
 where $tr(Mat(R)) = r_11 + r_22 + r_33$ is the trace of the rotation matrix.
+
+== Homogeneous Transformations
+
+$
+          Vec(r, f: A) & = Rm(B, f: A) Vec(r, f: B) + Vec(p, f: A) \
+  mat(Vec(r, f: A); 1) & = mat(
+                           Rm(B, f: A), Vec(p, f: A);
+                           Mat(0)_(1 times 3), 1
+                         ) mat(Vec(r, f: B); 1) \
+           Tm(B, f: A) & = mat(
+                           Rm(B, f: A), Vec(p, f: A);
+                           Mat(0)_(1 times 3), 1
+                         ) = mat(
+                           Mat(I)_(3 times 3), Vec(p, f: A);
+                           Mat(0)_(1 times 3), 1
+                         ) mat(
+                           Rm(B, f: A), Vec(0)_3;
+                           Mat(0)_(1 times 3), 1
+                         )
+$
+
+- Translation Operator: $Mat(T)(Vec(p)) := mat(
+    Mat(I), Vec(p);
+    Mat(0), 1
+  )$
+
+- Rotation Operator: $Mat(T)(Mat(R)) := mat(
+    Mat(R), Vec(0);
+    Mat(0), 1
+  )$
+
+- Transformation Operator: $Mat(T)(Mat(R), Vec(p)) := mat(
+    Mat(R), Vec(p);
+    Mat(0), 1
+  ) = Mat(T)(Vec(p)) space Mat(T)(Mat(R))$
+
+=== Inverse Transformation
+
+$
+      Vec(r, f: B) & = Rm(B, f: A)^top Vec(r, f: A) - Rm(B, f: A)^top Vec(p, f: A) \
+  Tm(A, f: B)^(-1) & = mat(
+                       Rm(B, f: A)^top, , -Rm(B, f: A)^top Vec(p, f: A);
+                       Mat(0)_(1 times 3), , 1
+                     )
+$
