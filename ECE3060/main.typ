@@ -227,3 +227,32 @@ $
                        Mat(0)_(1 times 3), , 1
                      )
 $
+
+=== Arithmetic
+
+$
+  Tm(A, f: C) = Tm(B, f: C) Tm(A, f: B)
+  quad quad quad quad Vec(r, f: A) = Tm(B, f: A) Vec(r, f: B)
+$
+
+- $Vec(r) = mat(x, y, z, 1)^top$ represents a point whose coordinates are $(x, y, z)$.
+$
+  mat(
+    1, 0, 0, a;
+    0, 1, 0, b;
+    0, 0, 1, c;
+    0, 0, 0, 1;
+  ) vec(x, y, z, 1) =
+  vec(x + a, y + b, z + c, 1)
+$
+
+- $Vec(v) = mat(x, y, z, 0)^top$ represents a direction vector whose components are $(x, y, z)$, because translation does not affect it:
+$
+  mat(
+    1, 0, 0, a;
+    0, 1, 0, b;
+    0, 0, 1, c;
+    0, 0, 0, 1;
+  ) vec(x, y, z, 0) =
+  vec(x, y, z, 0)
+$
