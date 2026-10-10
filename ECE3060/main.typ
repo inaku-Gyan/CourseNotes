@@ -256,3 +256,33 @@ $
   ) vec(x, y, z, 0) =
   vec(x, y, z, 0)
 $
+
+= Denavit-Hartenberg Representation
+
+In this chapter, we use the modified Denavit-Hartenberg convention (modified D-H method).
+It is a systematic way to assign coordinate frames to the links of a robot manipulator.
+
+Two joint types:
+- Revolute Joint
+- Prismatic Joint
+
+Four parameters for each link. For link $i$ (frame $i$):
+- $alpha_(i-1)$: *link twist*, the angle from $z_(i-1)$ to $z_i$ about $x_(i-1)$.
+- $a_(i-1)$: *link length*, the distance from $z_(i-1)$ to $z_i$ along $x_(i-1)$.
+- $d_i$: *link offset*, the distance from $x_(i-1)$ to $x_i$ along $z_i$.
+- $theta_i$: *joint angle*, the angle from $x_(i-1)$ to $x_i$ about $z_i$.
+
+#table(
+  columns: (1fr, 1fr, 1fr, 1fr, 1fr),
+  align: center + horizon,
+  [ Joint $i$ ], $alpha_(i-1)$, $a_(i-1)$, $d_i$, $theta_i$,
+  [ Revolute Joint], [ constant ], [ constant ], [ constant ], [ _variable_ ],
+  [ Prismatic Joint], [ constant ], [ constant ], [ _variable_ ], [ constant ],
+)
+
+$
+  Tm(i, f: i-1) space &= space Mat(R)_x (alpha_(i-1)) space Mat(T)_x (a_(i-1)) space Mat(T)_z (d_i) space Mat(R)_z (theta_i) \
+  "or equivalently" space
+  &= space Mat(T)_x (a_(i-1)) space Mat(R)_x (alpha_(i-1)) space Mat(T)_z (d_i) space Mat(R)_z (theta_i) \
+$
+
