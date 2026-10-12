@@ -114,3 +114,35 @@
   },
   caption: [Doped semiconductor energy bands.],
 )
+
+// --------------------------------
+
+#let panel2(name, h: 0) = {
+  set text(size: 9pt)
+  let t = 6
+  let b = 26
+  let y = (t + b) / 2 + h
+  box(width: 72mm, height: 30mm)[
+    #label(10, 0, strong(name))
+
+    #segment(10, t, 35, 0)
+    #segment(10, b, 35, 0)
+    #label(48, t - 2, [$E_C$], width: 11mm)
+    #label(48, b - 2, [$E_V$], width: 11mm)
+
+    #segment(10, y, 35, 0, stroke: (paint: transition-color, thickness: 0.8pt, dash: "dashed"))
+    #label(48, y - 2, [$E_F$], width: 11mm)
+  ]
+}
+
+#let fermi-energy = figure(
+  {
+    grid(
+      columns: (1fr, 1fr, 1fr),
+      gutter: 3mm,
+      align: center,
+      panel2("Lightly N-doped", h: -5), panel2("Intrinsic"), panel2("Lightly P-doped", h: 5),
+    )
+  },
+  caption: [Fermi energy in doped semiconductors.],
+)

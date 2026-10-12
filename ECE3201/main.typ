@@ -1,4 +1,5 @@
 #import "@preview/ilm:2.1.1": *
+#import "@preview/unify:0.8.1": qty, unit
 #import "../common/style.typ"
 
 #show: ilm.with(
@@ -246,7 +247,7 @@ $ "Differential input resistance: " R_"Id" = 2 R_1 $
 
 === Energy Band Diagrams
 
-#import "energy-bands.typ": doped-bands, intrinsic-bands
+#import "energy-bands.typ": doped-bands, fermi-energy, intrinsic-bands
 
 #intrinsic-bands
 
@@ -260,14 +261,19 @@ Occupied acceptor states are localized.
 
 The Fermi-Dirac distribution function gives the probability that an electron state at energy $E$ is occupied by an electron:
 $
-  f(E) = 1 / (1 + exp((E - E_F) / (k T)))
+  f(E) = 1 / (1 + exp((E - E_F) / (k_B T)))
 $
 And hole probability:
-$ 1 - f(E) = 1 / (1 + exp((E_F - E) / (k T))) $
-where $E_F$ is the *Fermi energy*, $k$ is the Boltzmann constant, and $T$ is the absolute temperature.
+$ 1 - f(E) = 1 / (1 + exp((E_F - E) / (k_B T))) $
+where $E_F$ is the *Fermi energy*, $k_B$ is the Boltzmann constant, and $T$ is the absolute temperature.
 
-*Fermi energy* is the energy level where $f(E_F) = 0.5$.
+==== Fermi Energy
+
+Fermi energy is the energy level where $f(E_F) = 0.5$.
 It is a _virtual_ energy level between $E_C$ and $E_V$.
+It is affected by the doping level.
+
+#fermi-energy
 
 The actual distribution of electrons is given by
 the product of the Fermi-Dirac distribution function $f(E)$
@@ -284,7 +290,7 @@ $ n p = "constant" $
 For intrinsic semiconductors, $n = p = n_i$, so
 $ n p = n_i^2 $
 
-For lowly doped semiconductors,
+For lowly doped semiconductors, the dopants are nearly all ionized, so
 the concentrations of electrons and holes can also be approximated by
 the concentrations of the donors and acceptors:
 $
@@ -301,18 +307,18 @@ $
   p = integral_(-infinity)^(E_V) g_V (E) (1 - f(E)) dif E
 $
 
-When $E - E_F >> k T$ and $E_F - E_V >> k T$,
+When $E - E_F >> k_B T$ and $E_F - E_V >> k_B T$,
 we can use the *Boltzmann approximation*:
 $
-  f(E) approx exp(-(E - E_F) / (k T)) \
-  n approx N_C exp(-(E_C - E_F) / (k T))
+  f(E) approx exp(-(E - E_F) / (k_B T)) \
+  n approx N_C exp(-(E_C - E_F) / (k_B T))
   quad quad quad quad
-  p approx N_V exp(-(E_F - E_V) / (k T))
+  p approx N_V exp(-(E_F - E_V) / (k_B T))
 $
 where $N_C$ and $N_V$ are the effective density of states in the conduction band and valence band, respectively.
 Thus
 $
-  n p approx N_C N_V exp(- E_g / (k T))
+  n p approx N_C N_V exp(- E_g / (k_B T))
   quad quad "where" quad
   E_g = E_C - E_V
 $
@@ -322,22 +328,103 @@ which is independent of the Fermi level $E_F$ and the doping level
 ==== Intrinsic carrier concentration (本征载流子浓度)
 
 $
-  n_i = B T^(3/2) exp(- E_g / (2 k T))
+  n_i = B T^(3/2) exp(- E_g / (2 k_B T))
   quad quad "or" quad
-  = sqrt(N_C N_V) exp(- E_g / (2 k T))
+  = sqrt(N_C N_V) exp(- E_g / (2 k_B T))
 $
 The number of free electrons or holes per unit volume in an intrinsic semiconductor at temperature $T$.
 
-$n_i$ for silicon at room temperature (300 K) is about $1.5 times 10^10 " cm"^(-3)$.
+$n_i$ for silicon at room temperature (300 K) is about $qty("1.5e10", "cm^-3")$.
 
 === Boltzmann Approximation
 
-When $E - E_F >> k T$ and $E_F - E_V >> k T$,
+When $E - E_F >> k_B T$ and $E_F - E_V >> k_B T$,
 the concentrations of electrons and holes can be approximated by the Boltzmann distribution:
 $
-  n = n_i exp((E_F - E_i) / (k T))
+  n = n_i exp((E_F - E_i) / (k_B T))
   quad quad quad quad
-  p = n_i exp((E_i - E_F) / (k T))
+  p = n_i exp((E_i - E_F) / (k_B T))
 $
 where $E_i$ is the intrinsic Fermi level,
 which is the Fermi level of an intrinsic semiconductor at a given temperature.
+
+== Current Flow in Semiconductors
+
+/ Drift current: the motion of charge carriers under the influence of an electric field.
+/ Diffusion current: the motion of charge carriers due to a concentration gradient.
+
+=== Drift Current
+
+$I_"drift" = I_p + I_n$
+
+$
+  v_(p"-drift") = mu_p E
+  quad quad quad quad
+  v_(n"-drift") = - mu_n E
+$
+- $E$: the electric field.
+- $mu_p$, $mu_n$: the mobility of holes and electrons, respectively.\
+  In intrinsic Si, $mu_n approx 1350 unit("cm^2/V/s")$ and $mu_p approx 480 unit("cm^2/V/s")$.
+$
+  I_p = q p A v_(p"-drift") = q p A mu_p E
+  quad quad quad quad
+  I_n = (-q) n A v_(n"-drift") = q n A mu_n E
+$
+- $A$: the cross-sectional area of the semiconductor.
+- $q = qty(1.602e-19, "C")$: the charge of an electron.
+- $p$, $n$: the concentrations of holes and electrons, respectively.
+$
+  J_"drift" = q (p mu_p + n mu_n) E = sigma E
+$
+- $J = I slash A$: the current density.
+- $sigma$: the electrical conductivity. ($unit("S/cm")$)
+- $rho = 1 slash sigma$: the electrical resistivity. ($unit("O cm")$)
+
+==== Temperature effect on conductivity
+
+#figure(
+  image("assets/Temperature effect on conductivity.png"),
+)
+
+=== Diffusion Current
+
+$
+  J_"diff" = J_(p"-diff") + J_(n"-diff")
+$
+$
+  J_(p"-diff") = - q D_p (dif p(x)) / (dif x)
+  quad quad quad quad
+  J_(n"-diff") = q D_n (dif n(x)) / (dif x)
+$
+- $D_p$, $D_n$: the diffusion coefficients of holes and electrons, respectively. ($unit("cm^2/s")$)\
+  In intrinsic Si, $D_n approx 35 unit("cm^2/s")$ and $D_p approx 12 unit("cm^2/s")$.
+
+=== Einstein Relationship
+
+$
+  D_n / mu_n = D_p / mu_p = V_T := (k_B T) / q
+$
+- $V_T$: the thermal voltage, defined as the thermal energy per unit charge. \
+  At room temperature (300 K), $V_T approx 25.9 unit("mV")$.
+- $k_B$: the Boltzmann constant. ($unit("eV/K")$)
+
+_Proof_ (about the electron current):
+
+$
+  J_n = J_(n"-drift") + J_(n"-diff")
+  = q n(x) mu_n E + q D_n (dif n(x)) / (dif x)
+$
+In equilibrium, no net current flow:
+$
+  q n(x) mu_n E + q D_n (dif n(x)) / (dif x) = 0
+$
+Using the Boltzmann approximation:
+$
+  n(x) & = n_i exp((E_F - E_i (x)) / (k_B T)) quad quad &      quad "where" quad E_i (x) = E_i (x_0) - q dot phi.alt(x) \
+       & = n_0 exp(phi.alt(x) / V_T)                    & phi.alt "is the potential, " quad E = (dif phi.alt) / (dif x) \
+  p(x) & = p_0 exp(- phi.alt(x) / V_T)
+$
+$
+  q n(x) mu_n E + q D_n (dif n(x)) / (dif phi.alt(x)) (dif phi.alt(x)) / (dif x) & = 0 \
+                            quad ==> quad q n(x) mu_n E + q D_n (n(x)) / (V_T) E & = 0 quad ==> quad D_n / mu_n = V_T
+$
