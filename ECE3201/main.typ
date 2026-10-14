@@ -10,6 +10,8 @@
 
 #show: style.apply
 
+#let e = $upright(e)$
+
 = Introduction
 
 == The Amplifier Model
@@ -427,4 +429,43 @@ $
 $
   q n(x) mu_n E + q D_n (dif n(x)) / (dif phi.alt(x)) (dif phi.alt(x)) / (dif x) & = 0 \
                             quad ==> quad q n(x) mu_n E + q D_n (n(x)) / (V_T) E & = 0 quad ==> quad D_n / mu_n = V_T
+$
+
+== PN Junctions
+
+/ depletion region (耗尽区): approximately no free carriers
+
+#figure(image("assets/image.png"))
+
+=== Built-in Voltage
+
+#figure(image("assets/image-1.png", width: 70%))
+
+(Considering the electron current only)
+Under equilibrium, $J_(n"-drift") + J_(n"-diff") = 0$:
+$
+  q n(x) mu_n E + q D_n (dif n(x)) / (dif x) = 0
+$
+Using Einstein relationship $V_T = D_n / mu_n$:
+$
+  - E dif x = V_T (dif n(x)) / (n(x))
+  quad quad ==> quad quad
+  integral_(-x_p)^(x_n) - E dif x = V_T integral_(n(-x_p))^(n(x_n)) (dif n(x)) / (n(x))
+$
+$
+  "Built-in voltage: "
+  V_0 = V(x_n) - V(-x_p) & = V_T ln n(x_n) / n(-x_p) \
+                         & = V_T ln (N_D N_A) / n_i^2
+$
+where $n(x_n) = N_D$ and $n(-x_p) = n_i^2 / N_A$.
+
+$N_D$ and $N_A$ are the dopant concentrations of the n-type and p-type semiconductors, respectively.
+
+For holes, similarly, we have:
+$
+  V_0 = V_T ln p(-x_p) / p(x_n)
+$
+And equivalently, we have the minority carrier concentrations at the edges of the depletion region:
+$
+  p(-x_p) / p(x_n) = n(x_n) / n(-x_p) = #e^(V_0 slash V_T) = exp((q V_0) / (k_B T))
 $
