@@ -11,6 +11,7 @@
 #show: style.apply
 
 #let e = $upright(e)$
+#let Vec(v) = $bold(#v)$
 
 = Introduction
 
@@ -439,7 +440,7 @@ $
 
 === Built-in Voltage
 
-#figure(image("assets/image-1.png", width: 70%))
+#figure(image("assets/PN_Junction.png", width: 50%))
 
 (Considering the electron current only)
 Under equilibrium, $J_(n"-drift") + J_(n"-diff") = 0$:
@@ -469,3 +470,66 @@ And equivalently, we have the minority carrier concentrations at the edges of th
 $
   p(-x_p) / p(x_n) = n(x_n) / n(-x_p) = #e^(V_0 slash V_T) = exp((q V_0) / (k_B T))
 $
+
+=== Electrostatic Analysis
+
+#figure(image("assets/PN_Junction.png", width: 50%))
+
+Charge in the depletion region:
+$
+  [-x_p, 0]": " quad
+  abs(Q_-) = q N_A x_p A
+  quad quad quad quad quad
+  [0, x_n]": " quad
+  abs(Q_+) = q N_D x_n A \
+  "Charge neutrality: " quad N_A x_p = N_D x_n
+$
+
+Gauss's law:
+$integral.cont Vec(E) dot dif Vec(A) = Q / epsilon$,
+where $Q$ is the total charge enclosed by the surface
+and $Vec(E)$ is the electric field created by both the enclosed and external charges.
+
+Permittivity in silicon: $epsilon_"Si" = 11.7 epsilon_0 = qty(8.854e-14, "F/cm")$
+
+In one dimension (assuming all the electric field lines are parallel to the $x$-axis):
+$
+  E(x) dot A + E(-x_p) dot (-A) = (Q_((-x_p, x))) / epsilon_"Si"
+$
+Since $E(-x_p) = 0$,
+$
+  E(x) = cases(
+    display((- q N_A (x + x_p)) / epsilon_"Si") quad quad & -x_p <= x <= 0, ,
+    display((q N_D (x_n - x)) / epsilon_"Si") & quad space 0 <= x <= x_n
+  )
+$
+
+#grid(
+  columns: (1fr, 1fr),
+  align: center + horizon,
+  image("assets/PN_Junction EF.png", width: 70%), image("assets/PN_Junction V.png", width: 85%),
+)
+
+$
+  V(x) = cases(
+    display((q N_A (x + x_p)^2) / (2 epsilon_"Si")) & -x_p <= x <= 0, ,
+    display(V_0 - (q N_D (x - x_n)^2) / (2 epsilon_"Si")) quad quad & quad space 0 <= x <= x_n
+  )
+$
+$
+  "Built-in voltage: "
+  V_0 = V(x_n) - V(-x_p) = (q (N_A x_p^2 + N_D x_n^2)) / (2 epsilon_"Si") \
+  "Depletion width: "
+  W = x_n + x_p = sqrt((2 epsilon_"Si") / q ( 1 / N_A + 1 / N_D ) V_0) \
+  x_p = (N_D / (N_A + N_D)) W
+  quad quad quad quad
+  x_n = (N_A / (N_A + N_D)) W \
+$
+
+#figure(image("assets/PN_Junction biased.png"))
+$
+  W = sqrt((2 epsilon_"Si") / q ( 1 / N_A + 1 / N_D ) (V_0 - V))
+$
+where $V$ is the applied voltage to the junction.
+
+
