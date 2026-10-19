@@ -341,15 +341,19 @@ $n_i$ for silicon at room temperature (300 K) is about $qty("1.5e10", "cm^-3")$.
 
 === Boltzmann Approximation
 
-When $E - E_F >> k_"B" T$ and $E_F - E_V >> k_"B" T$,
-the concentrations of electrons and holes can be approximated by the Boltzmann distribution:
+At thermal equilibrium, the Boltzmann approximation applies to electrons
+when $E_C - E_F >> k_"B" T$ and to holes when $E_F - E_V >> k_"B" T$.
+When both conditions hold, the semiconductor is *nondegenerate*, and
 $
-  n = n_i exp((E_F - E_i) / (k_"B" T))
-  quad quad quad quad
-  p = n_i exp((E_i - E_F) / (k_"B" T))
+  n approx n_i exp((E_F - E_i) / (k_"B" T))
+  quad quad
+  p approx n_i exp((E_i - E_F) / (k_"B" T))
 $
-where $E_i$ is the intrinsic Fermi level,
-which is the Fermi level of an intrinsic semiconductor at a given temperature.
+where $n_i$ and $E_i$ are the intrinsic carrier concentration and
+intrinsic Fermi level of the same material at temperature $T$.
+If $E_F$ lies near or inside a band, the corresponding carriers become
+*degenerate* (简并态), and the relevant exponential formula must be replaced
+by full Fermi–Dirac statistics.
 
 == Current Flow in Semiconductors
 
@@ -429,12 +433,14 @@ $
 $
 $
   q n(x) mu_n E + q D_n (dif n(x)) / (dif phi.alt(x)) (dif phi.alt(x)) / (dif x) & = 0 \
-                            quad ==> quad q n(x) mu_n E + q D_n (n(x)) / (V_"T") E & = 0 quad ==> quad D_n / mu_n = V_"T"
+                          quad ==> quad q n(x) mu_n E + q D_n (n(x)) / (V_"T") E & = 0 quad ==> quad D_n / mu_n = V_"T"
 $
 
 == PN Junctions
 
-/ depletion region (耗尽区): approximately no free carriers
+/ depletion region (耗尽区): approximately no free carriers; not electrically neutral
+/ quasi-neutral region (准中性区): the region outside the depletion region, where the concentrations of electrons and holes are approximately equal to the dopant concentrations
+/ built-in potential (内建电势): the potential difference across the depletion region
 
 #figure(image("assets/image.png"))
 
@@ -443,7 +449,7 @@ $
 #figure(image("assets/PN_Junction.png", width: 50%))
 
 (Considering the electron current only)
-Under equilibrium, $J_(n"-drift") + J_(n"-diff") = 0$:
+Under thermal equilibrium, $J_(n"-drift") + J_(n"-diff") = 0$:
 $
   q n(x) mu_n E + q D_n (dif n(x)) / (dif x) = 0
 $
@@ -531,5 +537,72 @@ $
   W = sqrt((2 epsilon_"Si") / q ( 1 / N_A + 1 / N_D ) (V_0 - V))
 $
 where $V$ is the applied voltage to the junction.
+
+=== $I$-$V$ Characteristics
+
+#figure(image("assets/image-1.png"))
+
+The concentration of minority carriers can be found by solving the continuity equation with the boundary conditions.
+Taking the electrons in the p-type region as an example:
+$
+  (partial n_p) / (partial t) = D_n (partial^2 n_p) / (partial x^2) - (n_p - n_(p 0)) / tau_n \
+  "Steady state: " quad (partial n_p) / (partial t) = 0 \
+  "Boundary conditions: " quad n_p |_(x=-x_p) = n_(p 0) #e^(V slash V_"T")
+  quad quad n_p |_(x=-infinity) = n_(p 0)
+$
+- $n_(p 0)$: the equilibrium electron concentration in the p-type region.
+- $tau_n$: the electron lifetime in the p-type region.
+- $V$: the applied voltage to the junction.
+- $L_n := sqrt(D_n tau_n)$: diffusion length.
+
+The solution is
+$
+  n_p (x) = n_(p 0) + n_(p 0) ( #e^(V slash V_"T") - 1 ) #e^((x + x_p) slash L_n)
+  quad quad x <= -x_p
+$
+Similarly, for holes in the n-type region:
+$
+  p_n (x) = p_(n 0) + p_(n 0) ( #e^(V slash V_"T") - 1 ) #e^(-(x - x_n) slash L_p)
+  quad quad x >= x_n
+$
+
+Diffusion current at the edges of the depletion region:
+$
+  J_(n"-diff") |_(x=-x_p) = q D_n (dif n_p) / (dif x) |_(x=-x_p) = (q D_n n_(p 0)) / L_n ( #e^(V slash V_"T") - 1 ) \
+  J_(p"-diff") |_(x=x_n) = - q D_p (dif p_n) / (dif x) |_(x=x_n) = (q D_p p_(n 0)) / L_p ( #e^(V slash V_"T") - 1 )
+$
+
+Some assumptions:
+- The electric field in quasi-neutral regions is negligible.
+  $ J_n approx J_(n"-diff") quad quad quad J_p approx J_(p"-diff") $
+- The depletion region is narrow, so recombinations and generations of carriers in the depletion region are negligible.
+  $ J_n (x_n) approx J_n (-x_p) quad quad quad J_p (x_n) approx J_p (-x_p) $
+
+Then the total current:
+$
+  I = (J_n + J_p) A = I_S ( #e^(V slash V_"T") - 1 )
+$
+where $I_S$ is the reverse saturation current:
+$
+  I_S = A q (D_n n_(p 0) / L_n + D_p p_(n 0) / L_p)
+  = A q n_i^2 (D_n / (L_n N_A) + D_p / (L_p N_D))
+$
+as $p_(n 0) = n_i^2 slash N_D$ and $n_(p 0) = n_i^2 slash N_A$.
+
+#grid(
+  columns: (1fr, 1fr),
+  align: center + horizon,
+  image("assets/image-2.png", width: 80%), image("assets/image-3.png", width: 80%),
+)
+
+Two types of reverse breakdown:
+
+/ Zener breakdown (齐纳击穿): Carrier tunneling occurs due to a strong electric field.\
+  Usually for $V_Z < 5 unit(V)$.
+/ Avalanche breakdown (雪崩击穿): Carrier multiplication occurs due to impact ionization.\
+  Usually for $V_Z > 7 unit(V)$.
+
+Both breakdowns do not necessarily damage the junction as long as the current and time are limited.
+
 
 
