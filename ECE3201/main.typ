@@ -297,9 +297,9 @@ For lowly doped semiconductors, the dopants are nearly all ionized, so
 the concentrations of electrons and holes can also be approximated by
 the concentrations of the donors and acceptors:
 $
-  "N-type:" quad quad n = N_D quad quad p = n_i^2 / N_D
+  "N-type:" quad quad n = N_"D" quad quad p = n_i^2 / N_"D"
   quad quad quad quad
-  "P-type:" quad quad p = N_A quad quad n = n_i^2 / N_A
+  "P-type:" quad quad p = N_"A" quad quad n = n_i^2 / N_"A"
 $
 
 ==== Concentrations of electrons and holes
@@ -462,11 +462,11 @@ $
 $
   "Built-in voltage: "
   V_0 = V(x_n) - V(-x_p) & = V_"T" ln n(x_n) / n(-x_p) \
-                         & = V_"T" ln (N_D N_A) / n_i^2
+                         & = V_"T" ln (N_"D" N_"A") / n_i^2
 $
-where $n(x_n) = N_D$ and $n(-x_p) = n_i^2 / N_A$.
+where $n(x_n) = N_"D"$ and $n(-x_p) = n_i^2 / N_"A"$.
 
-$N_D$ and $N_A$ are the dopant concentrations of the n-type and p-type semiconductors, respectively.
+$N_"D"$ and $N_"A"$ are the dopant concentrations of the n-type and p-type semiconductors, respectively.
 
 For holes, similarly, we have:
 $
@@ -484,11 +484,11 @@ $
 Charge in the depletion region:
 $
   [-x_p, 0]": " quad
-  abs(Q_-) = q N_A x_p A
+  abs(Q_-) = q N_"A" x_p A
   quad quad quad quad quad
   [0, x_n]": " quad
-  abs(Q_+) = q N_D x_n A \
-  "Charge neutrality: " quad N_A x_p = N_D x_n
+  abs(Q_+) = q N_"D" x_n A \
+  "Charge neutrality: " quad N_"A" x_p = N_"D" x_n
 $
 
 Gauss's law:
@@ -505,8 +505,8 @@ $
 Since $E(-x_p) = 0$,
 $
   E(x) = cases(
-    display((- q N_A (x + x_p)) / epsilon_"Si") quad quad & -x_p <= x <= 0, ,
-    display((q N_D (x_n - x)) / epsilon_"Si") & quad space 0 <= x <= x_n
+    display((- q N_"A" (x + x_p)) / epsilon_"Si") quad quad & -x_p <= x <= 0, ,
+    display((q N_"D" (x_n - x)) / epsilon_"Si") & quad space 0 <= x <= x_n
   )
 $
 
@@ -518,23 +518,23 @@ $
 
 $
   V(x) = cases(
-    display((q N_A (x + x_p)^2) / (2 epsilon_"Si")) & -x_p <= x <= 0, ,
-    display(V_0 - (q N_D (x - x_n)^2) / (2 epsilon_"Si")) quad quad & quad space 0 <= x <= x_n
+    display((q N_"A" (x + x_p)^2) / (2 epsilon_"Si")) & -x_p <= x <= 0, ,
+    display(V_0 - (q N_"D" (x - x_n)^2) / (2 epsilon_"Si")) quad quad & quad space 0 <= x <= x_n
   )
 $
 $
   "Built-in voltage: "
-  V_0 = V(x_n) - V(-x_p) = (q (N_A x_p^2 + N_D x_n^2)) / (2 epsilon_"Si") \
+  V_0 = V(x_n) - V(-x_p) = (q (N_"A" x_p^2 + N_"D" x_n^2)) / (2 epsilon_"Si") \
   "Depletion width: "
-  W = x_n + x_p = sqrt((2 epsilon_"Si") / q ( 1 / N_A + 1 / N_D ) V_0) \
-  x_p = (N_D / (N_A + N_D)) W
+  W = x_n + x_p = sqrt((2 epsilon_"Si") / q ( 1 / N_"A" + 1 / N_"D" ) V_0) \
+  x_p = (N_"D" / (N_"A" + N_"D")) W
   quad quad quad quad
-  x_n = (N_A / (N_A + N_D)) W \
+  x_n = (N_"A" / (N_"A" + N_"D")) W \
 $
 
 #figure(image("assets/PN_Junction biased.png"))
 $
-  W = sqrt((2 epsilon_"Si") / q ( 1 / N_A + 1 / N_D ) (V_0 - V))
+  W = sqrt((2 epsilon_"Si") / q ( 1 / N_"A" + 1 / N_"D" ) (V_0 - V))
 $
 where $V$ is the applied voltage to the junction.
 
@@ -585,9 +585,9 @@ $ <PN-Junction:total_current>
 where $I_S$ is the reverse saturation current:
 $
   I_S = A q (D_n n_(p 0) / L_n + D_p p_(n 0) / L_p)
-  = A q n_i^2 (D_n / (L_n N_A) + D_p / (L_p N_D))
+  = A q n_i^2 (D_n / (L_n N_"A") + D_p / (L_p N_"D"))
 $
-as $p_(n 0) = n_i^2 slash N_D$ and $n_(p 0) = n_i^2 slash N_A$.
+as $p_(n 0) = n_i^2 slash N_"D"$ and $n_(p 0) = n_i^2 slash N_"A"$.
 
 #grid(
   columns: (1fr, 1fr),
@@ -610,7 +610,7 @@ Both breakdowns do not necessarily damage the junction as long as the current an
 - $V_"R"$: The reverse bias voltage.
 
 $
-  Q_"J" = abs(Q_-) = abs(Q_+) = A sqrt(2 epsilon_"Si" q (N_A N_D) / (N_A + N_D) (V_0 + V_"R"))
+  Q_"J" = abs(Q_-) = abs(Q_+) = A sqrt(2 epsilon_"Si" q (N_"A" N_"D") / (N_"A" + N_"D") (V_0 + V_"R"))
 $
 $
   C_"J" = (dif Q_"J") / (dif V_"R") = alpha / (2 sqrt(V_0 + V_"R"))
@@ -621,7 +621,7 @@ where
 $
   C_("J"0) = alpha / (2 sqrt(V_0))
   quad quad quad
-  alpha = A sqrt(2 epsilon_"Si" q (N_A N_D) / (N_A + N_D))
+  alpha = A sqrt(2 epsilon_"Si" q (N_"A" N_"D") / (N_"A" + N_"D"))
 $
 
 === Diffusion Capacitance
