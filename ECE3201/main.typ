@@ -264,11 +264,11 @@ Occupied acceptor states are localized.
 
 The Fermi-Dirac distribution function gives the probability that an electron state at energy $E$ is occupied by an electron:
 $
-  f(E) = 1 / (1 + exp((E - E_F) / (k_B T)))
+  f(E) = 1 / (1 + exp((E - E_F) / (k_"B" T)))
 $
 And hole probability:
-$ 1 - f(E) = 1 / (1 + exp((E_F - E) / (k_B T))) $
-where $E_F$ is the *Fermi energy*, $k_B$ is the Boltzmann constant, and $T$ is the absolute temperature.
+$ 1 - f(E) = 1 / (1 + exp((E_F - E) / (k_"B" T))) $
+where $E_F$ is the *Fermi energy*, $k_"B"$ is the Boltzmann constant, and $T$ is the absolute temperature.
 
 ==== Fermi Energy
 
@@ -310,18 +310,18 @@ $
   p = integral_(-infinity)^(E_V) g_V (E) (1 - f(E)) dif E
 $
 
-When $E - E_F >> k_B T$ and $E_F - E_V >> k_B T$,
+When $E - E_F >> k_"B" T$ and $E_F - E_V >> k_"B" T$,
 we can use the *Boltzmann approximation*:
 $
-  f(E) approx exp(-(E - E_F) / (k_B T)) \
-  n approx N_C exp(-(E_C - E_F) / (k_B T))
+  f(E) approx exp(-(E - E_F) / (k_"B" T)) \
+  n approx N_C exp(-(E_C - E_F) / (k_"B" T))
   quad quad quad quad
-  p approx N_V exp(-(E_F - E_V) / (k_B T))
+  p approx N_V exp(-(E_F - E_V) / (k_"B" T))
 $
 where $N_C$ and $N_V$ are the effective density of states in the conduction band and valence band, respectively.
 Thus
 $
-  n p approx N_C N_V exp(- E_g / (k_B T))
+  n p approx N_C N_V exp(- E_g / (k_"B" T))
   quad quad "where" quad
   E_g = E_C - E_V
 $
@@ -331,9 +331,9 @@ which is independent of the Fermi level $E_F$ and the doping level
 ==== Intrinsic carrier concentration (本征载流子浓度)
 
 $
-  n_i = B T^(3/2) exp(- E_g / (2 k_B T))
+  n_i = B T^(3/2) exp(- E_g / (2 k_"B" T))
   quad quad "or" quad
-  = sqrt(N_C N_V) exp(- E_g / (2 k_B T))
+  = sqrt(N_C N_V) exp(- E_g / (2 k_"B" T))
 $
 The number of free electrons or holes per unit volume in an intrinsic semiconductor at temperature $T$.
 
@@ -341,12 +341,12 @@ $n_i$ for silicon at room temperature (300 K) is about $qty("1.5e10", "cm^-3")$.
 
 === Boltzmann Approximation
 
-When $E - E_F >> k_B T$ and $E_F - E_V >> k_B T$,
+When $E - E_F >> k_"B" T$ and $E_F - E_V >> k_"B" T$,
 the concentrations of electrons and holes can be approximated by the Boltzmann distribution:
 $
-  n = n_i exp((E_F - E_i) / (k_B T))
+  n = n_i exp((E_F - E_i) / (k_"B" T))
   quad quad quad quad
-  p = n_i exp((E_i - E_F) / (k_B T))
+  p = n_i exp((E_i - E_F) / (k_"B" T))
 $
 where $E_i$ is the intrinsic Fermi level,
 which is the Fermi level of an intrinsic semiconductor at a given temperature.
@@ -405,11 +405,11 @@ $
 === Einstein Relationship
 
 $
-  D_n / mu_n = D_p / mu_p = V_T := (k_B T) / q
+  D_n / mu_n = D_p / mu_p = V_"T" := (k_"B" T) / q
 $
-- $V_T$: the thermal voltage, defined as the thermal energy per unit charge. \
-  At room temperature (300 K), $V_T approx 25.9 unit("mV")$.
-- $k_B$: the Boltzmann constant. ($unit("eV/K")$)
+- $V_"T"$: the thermal voltage, defined as the thermal energy per unit charge. \
+  At room temperature (300 K), $V_"T" approx 25.9 unit("mV")$.
+- $k_"B"$: the Boltzmann constant. ($unit("eV/K")$)
 
 _Proof_ (about the electron current):
 
@@ -423,13 +423,13 @@ $
 $
 Using the Boltzmann approximation:
 $
-  n(x) & = n_i exp((E_F - E_i (x)) / (k_B T)) quad quad &      quad "where" quad E_i (x) = E_i (x_0) - q dot phi.alt(x) \
-       & = n_0 exp(phi.alt(x) / V_T)                    & phi.alt "is the potential, " quad E = (dif phi.alt) / (dif x) \
-  p(x) & = p_0 exp(- phi.alt(x) / V_T)
+  n(x) & = n_i exp((E_F - E_i (x)) / (k_"B" T)) quad quad &      quad "where" quad E_i (x) = E_i (x_0) - q dot phi.alt(x) \
+       & = n_0 exp(phi.alt(x) / V_"T")                    & phi.alt "is the potential, " quad E = (dif phi.alt) / (dif x) \
+  p(x) & = p_0 exp(- phi.alt(x) / V_"T")
 $
 $
   q n(x) mu_n E + q D_n (dif n(x)) / (dif phi.alt(x)) (dif phi.alt(x)) / (dif x) & = 0 \
-                            quad ==> quad q n(x) mu_n E + q D_n (n(x)) / (V_T) E & = 0 quad ==> quad D_n / mu_n = V_T
+                            quad ==> quad q n(x) mu_n E + q D_n (n(x)) / (V_"T") E & = 0 quad ==> quad D_n / mu_n = V_"T"
 $
 
 == PN Junctions
@@ -447,16 +447,16 @@ Under equilibrium, $J_(n"-drift") + J_(n"-diff") = 0$:
 $
   q n(x) mu_n E + q D_n (dif n(x)) / (dif x) = 0
 $
-Using Einstein relationship $V_T = D_n / mu_n$:
+Using Einstein relationship $V_"T" = D_n / mu_n$:
 $
-  - E dif x = V_T (dif n(x)) / (n(x))
+  - E dif x = V_"T" (dif n(x)) / (n(x))
   quad quad ==> quad quad
-  integral_(-x_p)^(x_n) - E dif x = V_T integral_(n(-x_p))^(n(x_n)) (dif n(x)) / (n(x))
+  integral_(-x_p)^(x_n) - E dif x = V_"T" integral_(n(-x_p))^(n(x_n)) (dif n(x)) / (n(x))
 $
 $
   "Built-in voltage: "
-  V_0 = V(x_n) - V(-x_p) & = V_T ln n(x_n) / n(-x_p) \
-                         & = V_T ln (N_D N_A) / n_i^2
+  V_0 = V(x_n) - V(-x_p) & = V_"T" ln n(x_n) / n(-x_p) \
+                         & = V_"T" ln (N_D N_A) / n_i^2
 $
 where $n(x_n) = N_D$ and $n(-x_p) = n_i^2 / N_A$.
 
@@ -464,11 +464,11 @@ $N_D$ and $N_A$ are the dopant concentrations of the n-type and p-type semicondu
 
 For holes, similarly, we have:
 $
-  V_0 = V_T ln p(-x_p) / p(x_n)
+  V_0 = V_"T" ln p(-x_p) / p(x_n)
 $
 And equivalently, we have the minority carrier concentrations at the edges of the depletion region:
 $
-  p(-x_p) / p(x_n) = n(x_n) / n(-x_p) = #e^(V_0 slash V_T) = exp((q V_0) / (k_B T))
+  p(-x_p) / p(x_n) = n(x_n) / n(-x_p) = #e^(V_0 slash V_"T") = exp((q V_0) / (k_"B" T))
 $
 
 === Electrostatic Analysis
