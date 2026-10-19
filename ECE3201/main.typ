@@ -572,7 +572,7 @@ $
   J_(p"-diff") |_(x=x_n) = - q D_p (dif p_n) / (dif x) |_(x=x_n) = (q D_p p_(n 0)) / L_p ( #e^(V slash V_"T") - 1 )
 $
 
-Some assumptions:
+Some approximations:
 - The electric field in quasi-neutral regions is negligible.
   $ J_n approx J_(n"-diff") quad quad quad J_p approx J_(p"-diff") $
 - The depletion region is narrow, so recombinations and generations of carriers in the depletion region are negligible.
@@ -581,7 +581,7 @@ Some assumptions:
 Then the total current:
 $
   I = (J_n + J_p) A = I_S ( #e^(V slash V_"T") - 1 )
-$
+$ <PN-Junction:total_current>
 where $I_S$ is the reverse saturation current:
 $
   I_S = A q (D_n n_(p 0) / L_n + D_p p_(n 0) / L_p)
@@ -598,11 +598,63 @@ as $p_(n 0) = n_i^2 slash N_D$ and $n_(p 0) = n_i^2 slash N_A$.
 Two types of reverse breakdown:
 
 / Zener breakdown (齐纳击穿): Carrier tunneling occurs due to a strong electric field.\
-  Usually for $V_Z < 5 unit(V)$.
+  Usually for $V_"Z" < 5 unit(V)$.
 / Avalanche breakdown (雪崩击穿): Carrier multiplication occurs due to impact ionization.\
-  Usually for $V_Z > 7 unit(V)$.
+  Usually for $V_"Z" > 7 unit(V)$.
 
 Both breakdowns do not necessarily damage the junction as long as the current and time are limited.
 
+=== Depletion Capacitance
 
+- $Q_"J"$: The charge stored in the depletion region.
+- $V_"R"$: The reverse bias voltage.
+
+$
+  Q_"J" = abs(Q_-) = abs(Q_+) = A sqrt(2 epsilon_"Si" q (N_A N_D) / (N_A + N_D) (V_0 + V_"R"))
+$
+$
+  C_"J" = (dif Q_"J") / (dif V_"R") = alpha / (2 sqrt(V_0 + V_"R"))
+  = C_("J"0) / sqrt(1 + V_"R" slash V_0) \
+  quad quad quad
+$
+where
+$
+  C_("J"0) = alpha / (2 sqrt(V_0))
+  quad quad quad
+  alpha = A sqrt(2 epsilon_"Si" q (N_A N_D) / (N_A + N_D))
+$
+
+=== Diffusion Capacitance
+
+Stored excess minority-carrier charges (过剩少数载流子的存储电荷) in the two quasi-neutral regions:
+#grid(
+  columns: (1fr, 1fr),
+  align: center + horizon,
+  $
+    Q_n & = q A integral_(-infinity)^(-x_p) (n_p (x) - n_(p 0)) dif x \
+        & = q A n_(p 0) L_n ( #e^(V slash V_"T") - 1 ) \
+        & = L_n^2 / D_n I_n \
+        & = tau_n I_n
+  $,
+  $
+    Q_p & = q A integral_(x_n)^(infinity) (p_n (x) - p_(n 0)) dif x \
+        & = q A p_(n 0) L_p ( #e^(V slash V_"T") - 1 ) \
+        & = L_p^2 / D_p I_p \
+        & = tau_p I_p
+  $,
+)
+Total charge stored:
+$Q = tau_n I_n + tau_p I_p = tau_"T" I$,
+where $I = I_n + I_p$ and $tau_"T"$ is the mean transit time (平均渡越时间).
+
+Two approximations:
+- $tau_"T"$ is constant,
+  as $I_n = A q D_n n_(p 0) / L_n (#e^(V slash V_"T") - 1)$ and
+  $I_p = A q D_p p_(n 0) / L_p (#e^(V slash V_"T") - 1)$.
+- $#e^(V slash V_"T") >> 1$ and $I >> I_S$.
+
+Then the diffusion capacitance:
+$
+  C_"D" = (dif Q) / (dif V) = tau_"T" / V_"T" I
+$
 
