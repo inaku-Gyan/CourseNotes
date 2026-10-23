@@ -115,13 +115,13 @@ $
         J(Vec(w)) & = ||Mat(X) Vec(w) - Vec(y)||_2^2 \
                   & = (Mat(X) Vec(w) - Vec(y))^top (Mat(X) Vec(w) - Vec(y)) \
                   & = Vec(w)^top Mat(X)^top Mat(X) Vec(w) - 2 Vec(y)^top Mat(X) Vec(w) + Vec(y)^top Vec(y) \
-  nabla J(Vec(w)) & = 2 Mat(X)^top Mat(X) Vec(w) - 2 Mat(X)^top Vec(y) \
+  gradient J(Vec(w)) & = 2 Mat(X)^top Mat(X) Vec(w) - 2 Mat(X)^top Vec(y) \
 $
-The Hessian, $nabla^2 J(Vec(w)) &= 2 Mat(X)^top Mat(X)$,
+The Hessian, $gradient^2 J(Vec(w)) &= 2 Mat(X)^top Mat(X)$,
 is positive semi-definite (SPD), so $J(Vec(w))$ is convex.
 To find the optimal solution, we set the gradient to zero:
 $
-  nabla J(Vec(w)) = 0
+  gradient J(Vec(w)) = 0
   quad ==> quad
   Mat(X)^top Mat(X) Vec(w) = Mat(X)^top Vec(y)
 $
@@ -175,12 +175,12 @@ $
   Vec(w)^* = argmin_Vec(w) J(Vec(w)),
   quad quad
   J(Vec(w))       & = 1/2 norm(Mat(X) Vec(w) - Vec(y))^2 \
-  nabla J(Vec(w)) & = Mat(X)^top (Mat(X) Vec(w) - Vec(y))
+  gradient J(Vec(w)) & = Mat(X)^top (Mat(X) Vec(w) - Vec(y))
 $
 Iteratively updates the model parameters in the opposite direction of the gradient:
 $
   Vec(w) quad <- quad
-  Vec(w) - eta nabla J(Vec(w))
+  Vec(w) - eta gradient J(Vec(w))
 $
 
 #figure(
@@ -243,7 +243,7 @@ Compared to the ordinary least squares (OLS) regression,
 ridge regression additionally penalizes large parameter values:
 $
   J(Vec(w)) = norm(Mat(X) Vec(w) - Vec(y))_2^2 + lambda norm(Vec(w))_2^2 \
-  nabla J(Vec(w)) = 2 Mat(X)^top (Mat(X) Vec(w) - Vec(y)) + 2 lambda Vec(w)
+  gradient J(Vec(w)) = 2 Mat(X)^top (Mat(X) Vec(w) - Vec(y)) + 2 lambda Vec(w)
 $
 Setting the gradient to zero yields the closed-form solution:
 $
@@ -363,19 +363,19 @@ where $p_i = sigma(Vec(w)^top Vec(x)_i)$.
 
 $
   Vec(w) quad <- quad
-  Vec(w) - eta nabla J(Vec(w))
+  Vec(w) - eta gradient J(Vec(w))
 $
 
 Since $sigma'(r) = sigma(r)(1 - sigma(r))$, the chain rule gives
 $
-  nabla J(Vec(w)) & = 1/m sum_(i=1)^m (p_i - y_i) Vec(x)_i \
+  gradient J(Vec(w)) & = 1/m sum_(i=1)^m (p_i - y_i) Vec(x)_i \
                   & = 1/m Mat(X)^top (Vec(p) - Vec(y)) \
        "gradient" & = "feature" times ("prediction" - "target")
 $
 
 The Hessian:
 $
-  nabla^2 J(Vec(w)) = 1/m Mat(X)^top Mat(R) Mat(X)
+  gradient^2 J(Vec(w)) = 1/m Mat(X)^top Mat(R) Mat(X)
   quad quad "where" quad
   Mat(R) = diag(p_1 (1-p_1), dots.c, p_m (1-p_m))
 $
@@ -383,7 +383,7 @@ Since $p_i (1-p_i) > 0$, we have
 $
   Mat(R) succ.eq 0
   quad ==> quad
-  nabla^2 J(Vec(w)) succ.eq 0
+  gradient^2 J(Vec(w)) succ.eq 0
 $
 Thus $J(Vec(w))$ is convex,
 and gradient descent converges to the global minimum.
