@@ -506,7 +506,7 @@ Since $E(-x_p) = 0$,
 $
   E(x) = cases(
     display((- q N_"A" (x + x_p)) / epsilon_"Si") quad quad & -x_p <= x <= 0, ,
-    display((q N_"D" (x_n - x)) / epsilon_"Si") & quad space 0 <= x <= x_n
+    display((q N_"D" (x - x_n)) / epsilon_"Si") & quad space 0 <= x <= x_n
   )
 $
 
