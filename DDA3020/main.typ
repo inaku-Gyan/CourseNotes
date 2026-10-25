@@ -481,3 +481,55 @@ $
   w_j - eta / m [sum_(i=1)^m (p_i - obs(y)_i) obs(x)_(i j) + lambda w_j]
 $
 
+= Generalization and Model Selection
+
+== Bias-Variance Tradeoff
+
+=== Bias-Variance Decomposition
+
+Suppose that
+
+- the training dataset $D = {(obs(Vec(x))_i, obs(y)_i)}_(i=1)^m$ is drawn i.i.d. from some joint distribution $p(Vec(x), y)$;
+
+- the true relationship between the input and output is
+  $
+    y = f(Vec(x)) + e quad quad e ~ N(0, sigma^2) "is the irreducible noise," \
+    PP(y | Vec(x)) = cal(N)(y; f(Vec(x)), sigma^2)
+    quad quad EE_(y | Vec(x)) [y] = f(Vec(x))
+  $
+
+- the learned hypothesis function is $h_D (Vec(x))$,
+  and the expected hypothesis function is
+  $ dash(h)(Vec(x)) := EE_D [h_D (Vec(x))] = sum_(D ~ p^(m)) h_D (Vec(x)) PP(D) $.
+
+- $(Vec(x), y)$ is the test sample drawn from the same distribution,
+  and then the expected test error is
+  $
+    EE_(D, (Vec(x), y)) [(h_D (Vec(x)) - y)^2] &= sum_(D ~ p^(m), space (Vec(x), y) ~ p) (h_D (Vec(x)) - y)^2 PP(D, (Vec(x), y)) \
+    &= sum_((Vec(x), y) ~ p) sum_(D ~ p^(m)) (h_D (Vec(x)) - y)^2 PP(D) p(Vec(x), y) \
+    &= EE_((Vec(x), y)) [EE_D [(h_D (Vec(x)) - y)^2]] \
+  $
+
+*Bias-Variance Decomposition* states:
+
+#[
+  #let R(content) = text(content, fill: red)
+  $
+    #R("Expected test error") &= #h(3em) #R("Variance") #h(3.6em) + #h(2em) #R($"Bias"^2$) quad + quad #R("Irreducible noise") \
+    limits(EE)_(D, (Vec(x), y)) [(h_D (Vec(x)) - y)^2] &= limits(EE)_(D, (Vec(x), y)) [(h_D (Vec(x)) - dash(h)(Vec(x)))^2] + limits(EE)_((Vec(x), y)) [(dash(h)(Vec(x)) - f(Vec(x)))^2] + sigma^2 \
+  $
+  where $sigma^2 = EE_((Vec(x), y)) [(f(Vec(x))-y)^2]$.
+]
+
+== Model Selection
+
+=== $K$-Fold Cross-Validation
+
+#figure(table(
+  align: center + horizon,
+  columns: (1fr, 1fr, 1fr, 1.2fr, 1fr, 1.5fr),
+  [Fold $1$], [Fold $2$], [Fold $3$], [#sym.dots.c], [Fold $K$], [Test Set],
+))
+
+- Each fold is used as the validation set once;
+- Each fold is used as the training set $K-1$ times.
