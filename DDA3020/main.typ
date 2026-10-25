@@ -18,6 +18,8 @@
 
 #let Var = $op("Var")$
 
+#let Bias = $op("Bias")$
+
 #let argmax = $op("arg max", limits: #true)$
 #let argmin = $op("arg min", limits: #true)$
 
@@ -159,7 +161,7 @@ $
   cal(N)(Vec(w), sigma^2 (obs(Mat(X))^top obs(Mat(X)))^(-1))
 $
 
-/ Unbiasedness: $EE[hat(Vec(w))] = Vec(w)$.
+/ Unbiasedness: $Bias[hat(Vec(w))] := EE[hat(Vec(w))] - Vec(w) = 0$.
 
 / Estimation of noise variance $sigma^2$:
 
@@ -335,7 +337,7 @@ $
   y | Vec(x) ~ op("Bernoulli")(p)
   quad quad "where" quad
   p := sigma(Vec(w)^top Vec(x)) \
-  P(y | Vec(x); Vec(w)) = p^y (1-p)^(1-y)
+  PP(y | Vec(x); Vec(w)) = p^y (1-p)^(1-y)
   = cases(
     p & "if" y = 1,
     1 - p quad & "if" y = 0
@@ -357,7 +359,7 @@ $ log p / (1-p) = Vec(w)^top Vec(x) $
 
 For $m$ independent observations:
 $
-  P(obs(Vec(y)) | obs(Mat(X)); Vec(w)) = product_(i=1)^m p_i^(obs(y)_i) (1-p_i)^(1-obs(y)_i)
+  PP(obs(Vec(y)) | obs(Mat(X)); Vec(w)) = product_(i=1)^m p_i^(obs(y)_i) (1-p_i)^(1-obs(y)_i)
 $
 Then MLE gives the binary cross-entropy loss:
 $
@@ -399,7 +401,7 @@ and gradient descent converges to the global minimum.
 Logistic regression handles only binary classification problems.
 Multi-class classification requires a probability distribution over C classes:
 $
-  sum_(c=1)^C P(y = c | Vec(x)) = 1
+  sum_(c=1)^C PP(y = c | Vec(x)) = 1
 $
 
 === One-vs-Rest (OvR) Logistic Regression
@@ -408,11 +410,11 @@ Suppose $y in {1, 2, ..., C}$.
 
 Train $C$ independent binary classifiers, each of which distinguishes one class from the rest:
 $
-  P(y = c | Vec(x); Vec(w)_c) = sigma(Vec(w)_c^top Vec(x))
+  PP(y = c | Vec(x); Vec(w)_c) = sigma(Vec(w)_c^top Vec(x))
 $
 For a new input $Vec(x)$, the predicted class is
 $
-  hat(y) = argmax_(c in {1, 2, ..., C}) P(y = c | Vec(x); Vec(w)_c)
+  hat(y) = argmax_(c in {1, 2, ..., C}) PP(y = c | Vec(x); Vec(w)_c)
 $
 
 Limitation: The predicted probabilities do not sum to 1.
@@ -423,7 +425,7 @@ The predicted class probabilities of sample $obs(Vec(x))_i$:
 $
   Vec(p)_i = mat(p_(i 1), p_(i 2), dots.c, p_(i C))^top \
   p_(i c) =
-  P(y = c | obs(Vec(x))_i; Mat(W)) =
+  PP(y = c | obs(Vec(x))_i; Mat(W)) =
   exp(Vec(w)_c^top obs(Vec(x))_i) / (sum_(j=1)^C exp(Vec(w)_j^top obs(Vec(x))_i)) \
   Mat(W) = mat(Vec(w)_1, Vec(w)_2, dots.c, Vec(w)_C)
   in RR^((d+1) times C)
@@ -442,7 +444,7 @@ $
 The negative log-likelihood of a sample of class $c$ is
 $
   -log L(Vec(w)_c; obs(Vec(x))_i, obs(Vec(y))_i) =
-  -log P(obs(Vec(y))_i | obs(Vec(x))_i; Vec(w)_c) = -log p_(i c)
+  -log PP(obs(Vec(y))_i | obs(Vec(x))_i; Vec(w)_c) = -log p_(i c)
 $
 which is equivalent to the cross-entropy loss:
 $

@@ -26,7 +26,7 @@
 $X$, $Y$, and $W$ are random variables.
 The model describes the relationship between the input $x$ and the output $y$ parameterized by $w$:
 $
-  P(Y = y | X = x, W = w)
+  PP(Y = y | X = x, W = w)
 $
 where $x$, $y$, and $w$ are samples of $X$, $Y$, and $W$ respectively.
 
@@ -38,14 +38,14 @@ Given $x$ and $w$, the output $y$ is not deterministic, but rather a random vari
 
 - The data observed: $cal(D) = (x_"o", y_"o")$
 - The *likelihood* of observing the data given the model parameter $w$:
-  $ L(w; cal(D)) := P(Y = y_"o" | X = x_"o", W = w) $
+  $ L(w; cal(D)) := PP(Y = y_"o" | X = x_"o", W = w) $
 
-_Note_: $L(w; cal(D)) != P(cal(D) | W = w)$.
+_Note_: $L(w; cal(D)) != PP(cal(D) | W = w)$.
 
 Then the optimal $w$ is given by:
 $
   w_"MLE" & = argmax_w space L(w; cal(D)) \
-          & = argmax_w space P(Y = y_"o" | X = x_"o", W = w)
+          & = argmax_w space PP(Y = y_"o" | X = x_"o", W = w)
 $
 which is equivalent to minimizing the negative log-likelihood.
 
@@ -55,15 +55,15 @@ MAP estimation is equivalent to MLE with a *prior distribution* on the model par
 
 Applying Bayes' theorem on the *posterior distribution* of $W$ given the observed data $cal(D)$:
 $
-  P(W = w | cal(D)) &= P(W = w | X = x_"o", Y = y_"o") \
-  &= P(X = x_"o", Y = y_"o", W = w) / P(X = x_"o", W = w) dot (P(X = x_"o") P(W = w)) / P(X = x_"o", Y = y_"o") \
-  &= P(Y = y_"o" | X = x_"o", W = w) dot P(W = w) / P(Y = y_"o" | X = x_"o") \
+  PP(W = w | cal(D)) &= PP(W = w | X = x_"o", Y = y_"o") \
+  &= PP(X = x_"o", Y = y_"o", W = w) / PP(X = x_"o", W = w) dot (PP(X = x_"o") PP(W = w)) / PP(X = x_"o", Y = y_"o") \
+  &= PP(Y = y_"o" | X = x_"o", W = w) dot PP(W = w) / PP(Y = y_"o" | X = x_"o") \
 $
 
 Then the optimal $w$ is given by:
 $
-  w_"MAP" & = argmax_w space P(W = w | cal(D)) \
-          & = argmax_w space P(Y = y_"o" | X = x_"o", W = w) dot P(W = w) \
-          & = argmax_w space L(w; cal(D)) dot P(W = w)
+  w_"MAP" & = argmax_w space PP(W = w | cal(D)) \
+          & = argmax_w space PP(Y = y_"o" | X = x_"o", W = w) dot PP(W = w) \
+          & = argmax_w space L(w; cal(D)) dot PP(W = w)
 $
-where $P(W = w)$ is the *prior distribution* of $W$.
+where $PP(W = w)$ is the *prior distribution* of $W$.
