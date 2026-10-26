@@ -239,33 +239,36 @@ $
   quad quad quad quad Vec(r, f: A) = Tm(B, f: A) Vec(r, f: B)
 $
 
-If frame $C$ is obtained by transforming frame $B$ by $text(Mat(T), fill: #blue)$ w.r.t. frame $B$, then
-$
-  Tm(C, f: A) = Tm(B, f: A) text(Mat(T), fill: #blue)
-  quad quad "and" quad quad
-  Tm(C, f: B) = text(Mat(T), fill: #blue)
-$
+#[
+  #let T = $text(Mat(T), fill: #blue)$
+  #let O = $text(Tm(O, f: Sigma), fill: #orange)$
 
-If frame $C$ is obtained by transforming frame $B$ by $text(Mat(T), fill: #blue)$ w.r.t. frame $A$, then
-$
-  quad quad quad quad quad
-  Tm(C, f: A) = text(Mat(T), fill: #blue) Tm(B, f: A)
-  quad quad "and" quad quad
-  Tm(C, f: B) = Tm(B, f: A)^(-1) text(Mat(T), fill: #blue) Tm(B, f: A)
-$
+  - Aspect 1:
 
-With column vectors, operations w.r.t. the *current moving (body) frame* multiply on the *right*,
-while operations w.r.t. the *fixed (space) frame* multiply on the *left*.
-Starting from $Mat(T)_0 = Mat(I)$, applying $Mat(H)_1, Mat(H)_2, dots, Mat(H)_n$ w.r.t. the current moving frame
-is equivalent in final pose to applying $Mat(H)_n, dots, Mat(H)_2, Mat(H)_1$ w.r.t. the fixed frame:
-$
-  Mat(T)_"final" = Mat(H)_1 Mat(H)_2 dots Mat(H)_n
-$
-Reverse the execution order of *all operations*, including both rotations and translations,
-keeping each operation's axis label and angle or distance in its respective reference frame.
-A basic rotation about a fixed coordinate axis uses the axis through the fixed origin.
-For $Mat(T)_0 != Mat(I)$, first account for the change of reference frame;
-reversing the same numerical matrices does not generally give the same final pose.
+    Frame $C$ is obtained by transforming frame $B$ by $#T$ w.r.t. frame $B$:
+    $
+      Tm(C, f: A) = Tm(B, f: A) #T
+      quad quad "and" quad quad
+      Tm(C, f: B) = #T
+    $
+
+    Frame $C$ is obtained by transforming frame $B$ by $#T$ w.r.t. frame $A$:
+    $
+      quad quad quad quad quad
+      Tm(C, f: A) = #T Tm(B, f: A)
+      quad quad "and" quad quad
+      Tm(C, f: B) = Tm(B, f: A)^(-1) #T Tm(B, f: A)
+    $
+
+  - Aspect 2:
+    $Tm(O, f: Sigma)$ is the initial pose of the object w.r.t. the frame $Sigma$.
+
+    Transforming the object by $#T$ w.r.t. the frame $Sigma$:
+    $ Tm(O', f: Sigma) = #T Tm(O, f: Sigma) $
+
+    Transforming the object by $#T$ w.r.t. its own frame:
+    $ Tm(O'', f: Sigma) = Tm(O, f: Sigma) #T $
+]
 
 = Denavit-Hartenberg Representation
 
