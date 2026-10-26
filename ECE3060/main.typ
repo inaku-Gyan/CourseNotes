@@ -225,18 +225,23 @@ $
 === Inverse Transformation
 
 $
-      Vec(r, f: B) & = Rm(B, f: A)^top Vec(r, f: A) - Rm(B, f: A)^top Vec(p, f: A) \
-  Tm(B, f: A)^(-1) & = mat(
-                       Rm(B, f: A)^top, , -Rm(B, f: A)^top Vec(p, f: A);
-                       Mat(0)_(1 times 3), , 1
-                     )
+  Vec(p) & = Mat(R) Vec(q) + Vec(r) & ==> quad quad Vec(q) & = Mat(R)^top (Vec(p) - Vec(r)) \
+  Mat(T) & = mat(
+             Mat(R), Vec(r);
+             Mat(O)_(1 times 3), 1
+           ) quad quad              &          Mat(T)^(-1) & = mat(
+                                                               Mat(R)^top, -Mat(R)^top Vec(p);
+                                                               Mat(O)_(1 times 3), 1
+                                                             )
 $
 
 === Arithmetic
 
+- $Vec(r, f: A) = Tm(B, f: A) Vec(r, f: B)$: coordinates transformation of a vector
+- $Vec(p, f: A) = Tm(B, f: A) Vec(q, f: A)$: transformation of a vector within the same frame
+
 $
   Tm(A, f: C) = Tm(B, f: C) Tm(A, f: B)
-  quad quad quad quad Vec(r, f: A) = Tm(B, f: A) Vec(r, f: B)
 $
 
 #[
