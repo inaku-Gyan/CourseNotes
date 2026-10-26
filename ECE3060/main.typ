@@ -55,25 +55,23 @@ $
     UVec(x, f: A)_B, UVec(y, f: A)_B, UVec(z, f: A)_B;
     bar, bar, bar
   )
-  quad quad quad quad quad quad quad
+  quad quad quad
   Rm(B, f: A) Vec(p, f: B) = Vec(p, f: A)
+  quad quad quad
+  Rm(A, f: C) = Rm(B, f: C) Rm(A, f: B)
 $
 where the columns are the unit direction vectors of the axes of frame $B$ expressed in frame $A$.
 
 Rotation matrices are *orthogonal* matrices, i.e.,
 $
-  Mat(R)^(-1) = Mat(R)^top
-  quad quad quad quad
-  Vec(p, f: A) & = mat(
-                   bar.h, UVec(x, f: B)_A, bar.h;
-                   bar.h, UVec(y, f: B)_A, bar.h;
-                   bar.h, UVec(z, f: B)_A, bar.h;
-                 )                                & Vec(p, f: B) \
-               & = quad quad (Rm(A, f: B))^top    & Vec(p, f: B) \
-               & = quad quad space.en Rm(B, f: A) & Vec(p, f: B)
+                         Mat(R)^(-1) & = Mat(R)^top  & Vec(p, f: A) & = mat(
+                                                                        bar.h, UVec(x, f: B)_A, bar.h;
+                                                                        bar.h, UVec(y, f: B)_A, bar.h;
+                                                                        bar.h, UVec(z, f: B)_A, bar.h;
+                                                                      )                           & Vec(p, f: B) \
+  Rm(A, f: B)^top = Rm(A, f: B)^(-1) & = Rm(B, f: A) &              & = #h(2em) (Rm(A, f: B))^top & Vec(p, f: B) \
+                                     & #h(8em)       &              & = #h(2.5em) Rm(B, f: A)     & Vec(p, f: B)
 $
-
-==== Constraints and Properties
 
 #grid(
   columns: (1fr, 2fr),
@@ -87,28 +85,6 @@ $
     - $norm(Vec(x)) = 1, quad norm(Vec(y)) = 1, quad norm(Vec(z)) = 1$
   ],
 )
-
-=== Arithmetic
-
-$
-  Rm(A, f: C) = Rm(B, f: C) Rm(A, f: B)
-  quad quad quad quad Rm(A, f: B)^top = Rm(A, f: B)^(-1) = Rm(B, f: A)
-$
-
-If frame $C$ is obtained by rotating frame $B$ by $text(Mat(R), fill: #blue)$ w.r.t. frame $B$, then
-$
-  Rm(C, f: A) = Rm(B, f: A) text(Mat(R), fill: #blue)
-  quad quad "and" quad quad
-  Rm(C, f: B) = text(Mat(R), fill: #blue)
-$
-
-If frame $C$ is obtained by rotating frame $B$ by $text(Mat(R), fill: #blue)$ w.r.t. frame $A$, then
-$
-  quad quad quad quad quad
-  Rm(C, f: A) = text(Mat(R), fill: #blue) Rm(B, f: A)
-  quad quad "and" quad quad
-  Rm(C, f: B) = Rm(B, f: A)^(-1) text(Mat(R), fill: #blue) Rm(B, f: A)
-$
 
 === Fundamental Rotations
 
@@ -218,11 +194,39 @@ $
     Mat(0), 1
   ) = Mat(T)(Vec(p)) space Mat(T)(Mat(R))$
 
+#grid(
+  columns: (1fr, 1fr),
+  [
+    $Vec(r) = mat(x, y, z, 1)^top$ represents a point:
+    $
+      mat(
+        1, 0, 0, a;
+        0, 1, 0, b;
+        0, 0, 1, c;
+        0, 0, 0, 1;
+      ) vec(x, y, z, 1) =
+      vec(x + a, y + b, z + c, 1)
+    $
+  ],
+  [
+    $Vec(v) = mat(x, y, z, 0)^top$ represents a direction:
+    $
+      mat(
+        1, 0, 0, a;
+        0, 1, 0, b;
+        0, 0, 1, c;
+        0, 0, 0, 1;
+      ) vec(x, y, z, 0) =
+      vec(x, y, z, 0)
+    $
+  ],
+)
+
 === Inverse Transformation
 
 $
       Vec(r, f: B) & = Rm(B, f: A)^top Vec(r, f: A) - Rm(B, f: A)^top Vec(p, f: A) \
-  Tm(A, f: B)^(-1) & = mat(
+  Tm(B, f: A)^(-1) & = mat(
                        Rm(B, f: A)^top, , -Rm(B, f: A)^top Vec(p, f: A);
                        Mat(0)_(1 times 3), , 1
                      )
@@ -235,27 +239,33 @@ $
   quad quad quad quad Vec(r, f: A) = Tm(B, f: A) Vec(r, f: B)
 $
 
-- $Vec(r) = mat(x, y, z, 1)^top$ represents a point whose coordinates are $(x, y, z)$.
+If frame $C$ is obtained by transforming frame $B$ by $text(Mat(T), fill: #blue)$ w.r.t. frame $B$, then
 $
-  mat(
-    1, 0, 0, a;
-    0, 1, 0, b;
-    0, 0, 1, c;
-    0, 0, 0, 1;
-  ) vec(x, y, z, 1) =
-  vec(x + a, y + b, z + c, 1)
+  Tm(C, f: A) = Tm(B, f: A) text(Mat(T), fill: #blue)
+  quad quad "and" quad quad
+  Tm(C, f: B) = text(Mat(T), fill: #blue)
 $
 
-- $Vec(v) = mat(x, y, z, 0)^top$ represents a direction vector whose components are $(x, y, z)$, because translation does not affect it:
+If frame $C$ is obtained by transforming frame $B$ by $text(Mat(T), fill: #blue)$ w.r.t. frame $A$, then
 $
-  mat(
-    1, 0, 0, a;
-    0, 1, 0, b;
-    0, 0, 1, c;
-    0, 0, 0, 1;
-  ) vec(x, y, z, 0) =
-  vec(x, y, z, 0)
+  quad quad quad quad quad
+  Tm(C, f: A) = text(Mat(T), fill: #blue) Tm(B, f: A)
+  quad quad "and" quad quad
+  Tm(C, f: B) = Tm(B, f: A)^(-1) text(Mat(T), fill: #blue) Tm(B, f: A)
 $
+
+With column vectors, operations w.r.t. the *current moving (body) frame* multiply on the *right*,
+while operations w.r.t. the *fixed (space) frame* multiply on the *left*.
+Starting from $Mat(T)_0 = Mat(I)$, applying $Mat(H)_1, Mat(H)_2, dots, Mat(H)_n$ w.r.t. the current moving frame
+is equivalent in final pose to applying $Mat(H)_n, dots, Mat(H)_2, Mat(H)_1$ w.r.t. the fixed frame:
+$
+  Mat(T)_"final" = Mat(H)_1 Mat(H)_2 dots Mat(H)_n
+$
+Reverse the execution order of *all operations*, including both rotations and translations,
+keeping each operation's axis label and angle or distance in its respective reference frame.
+A basic rotation about a fixed coordinate axis uses the axis through the fixed origin.
+For $Mat(T)_0 != Mat(I)$, first account for the change of reference frame;
+reversing the same numerical matrices does not generally give the same final pose.
 
 = Denavit-Hartenberg Representation
 
