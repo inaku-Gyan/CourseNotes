@@ -230,7 +230,7 @@ $
              Mat(R), Vec(r);
              Mat(O)_(1 times 3), 1
            ) quad quad              &          Mat(T)^(-1) & = mat(
-                                                               Mat(R)^top, -Mat(R)^top Vec(p);
+                                                               Mat(R)^top, -Mat(R)^top Vec(r);
                                                                Mat(O)_(1 times 3), 1
                                                              )
 $
@@ -301,6 +301,6 @@ Four parameters for each link. For link $i$ (frame $i$):
 $
   Tm(i, f: i-1) space &= space Mat(R)_x (alpha_(i-1)) space Mat(T)_x (a_(i-1)) space Mat(T)_z (d_i) space Mat(R)_z (theta_i) \
   "or equivalently" space
-  &= space Mat(T)_x (a_(i-1)) space Mat(R)_x (alpha_(i-1)) space Mat(T)_z (d_i) space Mat(R)_z (theta_i) \
+  &= space Mat(T)_x (a_(i-1)) space Mat(R)_x (alpha_(i-1)) space Mat(T)_z (d_i) space Mat(R)_z (theta_i)
 $
 
