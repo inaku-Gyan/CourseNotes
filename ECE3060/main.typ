@@ -130,11 +130,11 @@ i.e., rotations about a single axis.
 
 === Equivalent Angle-Axis
 
-Any rotation matrix can be represented by a rotation of angle $phi.alt$ about an equivalent axis $Vec(u)$,
-and $(Vec(u), phi.alt)$ is called the *equivalent angle-axis* of the rotation matrix.
+Any rotation matrix can be represented by a rotation of angle $phi.alt$ about an equivalent axis $UVec(u)$,
+and $(UVec(u), phi.alt)$ is called the *equivalent angle-axis* of the rotation matrix.
 
-For $quad Vec(u) = vec(u_1, u_2, u_3), quad
-Mat(R)(Vec(u), phi.alt) = mat(
+For $quad UVec(u) = vec(u_1, u_2, u_3), quad
+Mat(R)(UVec(u), phi.alt) = mat(
   r_11, r_12, r_13;
   r_21, r_22, r_23;
   r_31, r_32, r_33;
@@ -144,18 +144,18 @@ Mat(R)(Vec(u), phi.alt) = mat(
   -u_2, u_1, 0;
 )$:
 $
-  Mat(R)(Vec(u), phi.alt) & = Mat(I) + (sin phi.alt) Mat(U) + (1 - cos phi.alt) Mat(U)^2 \
-                          & = mat(
-                              u_1^2 v_phi.alt + c_phi.alt, u_1 u_2 v_phi.alt - u_3 s_phi.alt, u_1 u_3 v_phi.alt + u_2 s_phi.alt;
-                              u_1 u_2 v_phi.alt + u_3 s_phi.alt, u_2^2 v_phi.alt + c_phi.alt, u_2 u_3 v_phi.alt - u_1 s_phi.alt;
-                              u_1 u_3 v_phi.alt - u_2 s_phi.alt, u_2 u_3 v_phi.alt + u_1 s_phi.alt, u_3^2 v_phi.alt + c_phi.alt;
-                            )
+  Mat(R)(UVec(u), phi.alt) & = Mat(I) + (sin phi.alt) Mat(U) + (1 - cos phi.alt) Mat(U)^2 \
+                           & = mat(
+                               u_1^2 v_phi.alt + c_phi.alt, u_1 u_2 v_phi.alt - u_3 s_phi.alt, u_1 u_3 v_phi.alt + u_2 s_phi.alt;
+                               u_1 u_2 v_phi.alt + u_3 s_phi.alt, u_2^2 v_phi.alt + c_phi.alt, u_2 u_3 v_phi.alt - u_1 s_phi.alt;
+                               u_1 u_3 v_phi.alt - u_2 s_phi.alt, u_2 u_3 v_phi.alt + u_1 s_phi.alt, u_3^2 v_phi.alt + c_phi.alt;
+                             )
 $
 where $c_phi.alt = cos phi.alt, quad s_phi.alt = sin phi.alt, quad v_phi.alt = 1 - cos phi.alt$.
 $
   phi.alt = arccos((tr(Mat(R)) - 1) / 2)
   quad quad "and" quad quad
-  Vec(u) = 1 / (2 sin phi.alt) vec(r_32 - r_23, r_13 - r_31, r_21 - r_12)
+  UVec(u) = 1 / (2 sin phi.alt) vec(r_32 - r_23, r_13 - r_31, r_21 - r_12)
 $
 where $tr(Mat(R)) = r_11 + r_22 + r_33$ is the trace of the rotation matrix.
 
