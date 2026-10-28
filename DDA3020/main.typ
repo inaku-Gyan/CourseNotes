@@ -23,6 +23,9 @@
 #let argmax = $op("arg max", limits: #true)$
 #let argmin = $op("arg min", limits: #true)$
 
+#let sign = $op("sign")$
+#let dist = $op("dist")$
+
 #let obs(x) = $accent(#x, paren.t)$
 
 = Introduction
@@ -533,3 +536,79 @@ Suppose that
 
 - Each fold is used as the validation set once;
 - Each fold is used as the training set $K-1$ times.
+
+= Support Vector Machines
+
+== Maximum Margin Classifier
+
+=== Binary Linear Classification
+
+Given the dataset $D = {(Vec(x)_i, y_i)}_(i=1)^m$,
+where $Vec(x)_i in RR^(d)$ and $y_i in {-1, 1}$,
+consider the linear classifier with parameters $(Vec(w), b)$:
+$
+  hat(y) = sign(Vec(w)^top Vec(x) + b)
+$
+The correct classification requires
+$
+  y_i (Vec(w)^top Vec(x)_i + b) > 0, quad i = 1, 2, dots, m
+$
+
+=== Distance from a Point to a Hyperplane
+
+For a point $Vec(x)$ and a hyperplane $cal(H): Vec(w)^top Vec(x) + b = 0$,
+the distance between them is
+$
+  dist(Vec(x), cal(H)) = abs(Vec(w)^top Vec(x) + b) / norm(Vec(w))
+$
+
+=== Hard-Margin SVM
+
+Let $S$ be the set of parameters that correctly classify all training samples,
+i.e.,
+$ S := {(Vec(w), b) : forall i, y_i (Vec(w)^top Vec(x)_i + b) > 0} $
+
+It is easy to see that
+$quad (Vec(w), b) in S quad ==> quad (c Vec(w), c b) in S, forall c > 0$.
+
+Let $gamma$ be the margin:
+$gamma(Vec(w), b) := min_i (y_i (Vec(w)^top Vec(x)_i + b)) / norm(Vec(w))$.
+Then we have:
+$ gamma(c Vec(w), c b) = gamma(Vec(w), b) quad quad forall c > 0, quad forall (Vec(w), b) in S $
+
+Let $m(Vec(w), b) := min_i y_i (Vec(w)^top Vec(x)_i + b)$.
+Then $forall c > 0, m(c Vec(w), c b) = c dot m(Vec(w), b)$.
+
+Define the new parameter set:
+$ S' := {(Vec(w)', b') : m(Vec(w)', b') = 1} subset S $
+so that $gamma(Vec(w)', b') = 1 / norm(Vec(w)')$
+for $(Vec(w)', b') in S'$.
+
+Using the construction $Vec(w)' = Vec(w) / m(Vec(w), b)$ and $b' = b / m(Vec(w), b)$,
+we can show that:
+$
+  forall (Vec(w), b) in S, space exists (Vec(w)', b') in S'
+  " s.t. " gamma(Vec(w), b) = gamma(Vec(w)', b')
+$
+which indicates $gamma(S) subset.eq gamma(S')$.
+And because $S supset S'$, we can conclude that $gamma(S) = gamma(S')$.
+
+Therefore, the maximum margin problem can be equivalently formulated as
+$
+  max_((Vec(w), b) in S) gamma(Vec(w), b)
+  = max_((Vec(w), b) in S') gamma(Vec(w), b)
+  = max_((Vec(w), b) in S') 1 / norm(Vec(w))
+  = min_((Vec(w), b) in S') 1/2 norm(Vec(w))^2
+$
+
+Additionally, for any $(Vec(w), b)$ such that $m(Vec(w), b) > 1$,
+we can use the same technique to scale it down
+to $(Vec(w)', b')$ such that $m(Vec(w)', b') = 1$
+and $norm(Vec(w)') < norm(Vec(w))$,
+thus the constraint can be relaxed to $m(Vec(w), b) >= 1$:
+$
+  & min_(Vec(w), b) && 1/2 norm(Vec(w))^2 \
+  & "s.t. " quad    && y_i (Vec(w)^top Vec(x)_i + b) >= 1, quad forall i
+$
+
+
