@@ -463,11 +463,11 @@ $
 Gradient descent:
 $
   Vec(w)_c quad <- quad
-  Vec(w)_c - eta dot (partial J(Mat(W))) / (partial Vec(w)_c)
+  Vec(w)_c - eta dot gradient_(Vec(w)_c) J(Mat(W))
 $
 $
-  (partial J(Mat(W))) / (partial Vec(w)_c) & = 1/m sum_(i=1)^m (p_(i c) - obs(y)_(i c)) obs(Vec(x))_i \
-                                "gradient" & = "feature" times ("prediction" - "target")
+  gradient_(Vec(w)_c) J(Mat(W)) & = 1/m sum_(i=1)^m (p_(i c) - obs(y)_(i c)) obs(Vec(x))_i \
+                     "gradient" & = "feature" times ("prediction" - "target")
 $
 
 == Regularization
@@ -496,7 +496,7 @@ Suppose that
 
 - the true relationship between the input and output is
   $
-    y = f(Vec(x)) + e quad quad e ~ N(0, sigma^2) "is the irreducible noise," \
+    y = f(Vec(x)) + e quad quad e ~ cal(N)(0, sigma^2) "is the irreducible noise," \
     PP(y | Vec(x)) = cal(N)(y; f(Vec(x)), sigma^2)
     quad quad EE_(y | Vec(x)) [y] = f(Vec(x))
   $
@@ -539,9 +539,7 @@ Suppose that
 
 = Support Vector Machines
 
-== Maximum Margin Classifier
-
-=== Binary Linear Classification
+== Binary Linear Classification
 
 Given the dataset $D = {(Vec(x)_i, y_i)}_(i=1)^m$,
 where $Vec(x)_i in RR^(d)$ and $y_i in {-1, 1}$,
@@ -554,7 +552,7 @@ $
   y_i (Vec(w)^top Vec(x)_i + b) > 0, quad i = 1, 2, dots, m
 $
 
-=== Distance from a Point to a Hyperplane
+==== Distance from a Point to a Hyperplane
 
 For a point $Vec(x)$ and a hyperplane $cal(H): Vec(w)^top Vec(x) + b = 0$,
 the distance between them is
@@ -607,8 +605,116 @@ to $(Vec(w)', b')$ such that $m(Vec(w)', b') = 1$
 and $norm(Vec(w)') < norm(Vec(w))$,
 thus the constraint can be relaxed to $m(Vec(w), b) >= 1$:
 $
-  & min_(Vec(w), b) && 1/2 norm(Vec(w))^2 \
-  & "s.t. " quad    && y_i (Vec(w)^top Vec(x)_i + b) >= 1, quad forall i
+  min_(Vec(w), b) &      && 1/2 norm(Vec(w))^2 \
+           "s.t." & quad && y_i (Vec(w)^top Vec(x)_i + b) >= 1, quad forall i
 $
 
+=== Soft-Margin SVM
 
+When the training dataset is not linearly separable,
+we introduce slack variables $xi_i >= 0$ to allow some misclassifications:
+$
+  min_(Vec(w), b, Vec(xi)) &      && 1/2 norm(Vec(w))^2 + C sum_(i=1)^m xi_i \
+                    "s.t." &      && y_i (Vec(w)^top Vec(x)_i + b) >= 1 - xi_i, quad forall i \
+                           & quad && xi_i >= 0, quad forall i
+$
+where $C > 0$ controls the tradeoff.
+
+At the optimum, we can show that the inequalities become active:
+$
+  xi_i = max(0, 1 - y_i (Vec(w)^top Vec(x)_i + b))
+$
+This motivates the *hinge loss* function:
+$
+  l_"hinge" (y, hat(y)) = max(0, 1 - y hat(y))
+$
+Then the soft-margin SVM can be equivalently formulated as
+$
+  min_(Vec(w), b) quad
+  1/2 norm(Vec(w))^2 + C sum_(i=1)^m max(0, 1 - y_i (Vec(w)^top Vec(x)_i + b))
+$
+
+== Duality, KKT Conditions, and Support Vectors
+
+=== KKT Conditions and Dual Problem
+
+For a constrained optimization problem:
+$
+  min_Vec(x) & quad && f(Vec(x)) \
+      "s.t." &      && g_i (Vec(x)) <= 0, quad forall i \
+             &      && h_j (Vec(x)) = 0, quad forall j
+$
+the Lagrangian is defined as
+$
+  cal(L)(Vec(x), Vec(lambda), Vec(nu)) := f(Vec(x)) + sum_i lambda_i g_i (Vec(x)) + sum_j nu_j h_j (Vec(x))
+$
+
+And the KKT conditions are defined as follows:
+- Stationarity: $wide gradient_(Vec(x)) cal(L)(Vec(x)^*, Vec(lambda)^*, Vec(nu)^*) = Vec(0)$
+- Primal feasibility: $wide g_i (Vec(x)^*) <= 0, quad h_j (Vec(x)^*) = 0$
+- Dual feasibility: $wide lambda_i >= 0$
+- Complementarity: $wide lambda_i g_i (Vec(x)^*) = 0$
+
+Under proper constraint qualification (CQ) conditions,
+KKT conditions are necessary for optimality.
+If the problem is convex, then KKT conditions are also sufficient for optimality.
+
+The dual function of the primal problem is defined as
+$
+  q(Vec(lambda), Vec(nu)) := inf_Vec(x) cal(L)(Vec(x), Vec(lambda), Vec(nu))
+$
+And the dual problem is
+$
+  max_(Vec(lambda), Vec(nu)) & quad && q(Vec(lambda), Vec(nu)) \
+                      "s.t." &      && lambda_i >= 0, quad forall i
+$
+
+Let $p^*$ and $d^*$ be the optimal values of the primal and dual problems, respectively.
+- Weak duality: $d^* <= p^*$
+- Strong duality: $d^* = p^*$
+
+=== Dual of Hard-Margin SVM
+
+The Lagrangian of the hard-margin SVM is
+$
+  cal(L)(Vec(w), b, Vec(alpha)) = 1/2 norm(Vec(w))^2 - sum_i alpha_i [y_i (Vec(w)^top Vec(x)_i + b) - 1]
+$
+The dual problem is
+$
+  max_(Vec(alpha)) &      && sum_i alpha_i
+                             - 1/2 sum_i sum_j alpha_i alpha_j y_i y_j Vec(x)_i^top Vec(x)_j \
+            "s.t." &      && sum_i alpha_i y_i = 0 \
+                   & quad && alpha_i >= 0, quad forall i
+$
+
+Once $Vec(alpha)$ is solved, the optimal $Vec(w)$ can be recovered using
+the KKT stationarity condition:
+$
+  Vec(w) = sum_i alpha_i y_i Vec(x)_i
+$
+So the parameter $Vec(w)$ is a weighted sum of the training samples.
+
+==== Support Vectors
+
+The KKT complementarity condition gives:
+$
+  alpha_i [y_i (Vec(w)^top Vec(x)_i + b) - 1] = 0, quad forall i
+$
+
+For $alpha_i > 0$ and $y_i (Vec(w)^top Vec(x)_i + b) = 1$:
+- The training sample $(Vec(x)_i, y_i)$ is called a *support vector*.
+- The support vectors lie on the margin (not the decision boundary).
+
+For $alpha_i = 0$ and $y_i (Vec(w)^top Vec(x)_i + b) > 1$:
+- They do not contribute to the decision boundary.
+- They lie outside the margin.
+
+=== Dual of Soft-Margin SVM
+
+The dual problem of the soft-margin SVM is
+$
+  max_(Vec(alpha)) &      && sum_i alpha_i
+                             - 1/2 sum_i sum_j alpha_i alpha_j y_i y_j Vec(x)_i^top Vec(x)_j \
+            "s.t." &      && sum_i alpha_i y_i = 0 \
+                   & quad && 0 <= alpha_i <= C, quad forall i
+$
