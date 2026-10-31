@@ -475,27 +475,23 @@ $
 
 == Internal Stability and the Gang of Four
 
-For the negative-feedback interconnection
+Consider a continuous-time LTI negative-feedback loop with a *SISO plant* $P(s)$
+and a *SISO controller* $C(s)$.
+*Internal stability* requires every closed-loop transfer channel to be stable.
+
+The *Gang of Four (GoF)* consists of four scalar closed-loop transfer functions,
+including sensitivity $S$ and complementary sensitivity $T$:
 
 $
-  u_1 = w_1 - y_1, quad y_2 = P u_1, quad
-  u_2 = w_2 + y_2, quad y_1 = C u_2
+    S & := 1 / (1 + P C) & wide C S & := C / (1 + P C)     &                \
+  P S & := P / (1 + P C) &        T & := (P C) / (1 + P C) & wide S + T = 1
 $
 
-*Internal stability* means all eight transfer functions from the two external inputs
-$(w_1, w_2)$ to the four internal signals $(u_1, u_2, y_1, y_2)$ are stable.
-
-Define the sensitivity $S$ and complementary sensitivity $T$:
+Use real coprime plant/controller factors and define the characteristic polynomial $Delta(s)$:
 
 $
-  S = 1 / (1 + P C), quad T = (P C) / (1 + P C), quad S + T = 1
-$
-
-Use real coprime plant/controller factors and define the characteristic polynomial $d(s)$:
-
-$
-  P(s) & = b(s) / a(s), quad C(s) = q(s) / p(s), quad gcd(a, b) = gcd(p, q) = 1 \
-  d(s) & := a(s) p(s) + b(s) q(s)
+      P(s) & = b(s) / a(s), quad C(s) = q(s) / p(s), quad gcd(a, b) = gcd(p, q) = 1 \
+  Delta(s) & := a(s) p(s) + b(s) q(s)
 $
 
 Assume $P$ and $C$ are *proper* (numerator degree does not exceed denominator degree)
@@ -507,59 +503,34 @@ If either $P$ or $C$ is strictly proper, the well-posedness condition is automat
 Under these assumptions, internal stability is equivalent to each of the following:
 
 - *Gang of Four:* $S$, $C S$, $P S$, and $T$ are all stable.
-- *Characteristic polynomial:* $d(s)$ is Hurwitz.
-- *Routh test:* normalize the leading coefficient of $d(s)$ to be positive;
-  every first-column entry is positive.
+- *Characteristic polynomial:* $Delta(s)$ is Hurwitz (stable).
 - *Cancellation test:* forming $P C$ involves no pole--zero cancellation in
-  $Re(s) >= 0$, *and* any one of $S$, $C S$, $P S$, or $T$ is stable.
+  $Re(s) >= 0$, and any one of $S$, $C S$, $P S$, or $T$ is stable.
 
-Solving the loop equations gives
+*Characteristic-polynomial test*
 
-$
-  u_1 & = S w_1 - C S w_2, quad & y_2 & = P S w_1 - T w_2 \
-  u_2 & = P S w_1 + S w_2, quad & y_1 & = T w_1 + C S w_2
-$
-
-#block(breakable: false)[
-  == Closed-Loop Characteristic Polynomial
-
-  Substitution gives the common denominator and the *Gang of Four matrix*:
-
-  $
-                1 + P C & = (a p + b q) / (a p) \
-    mat(S, C S; P S, T) & = 1 / d(s) mat(a p, a q; b p, b q)
-  $
-]
-
-Coprimeness prevents a zero of $d(s)$ from cancelling in all four entries,
-which yields the characteristic-polynomial test above.
-Check $d(s)$ before cancelling cross-factors between the plant and controller;
-a stable reference-to-output transfer function alone can hide unstable internal dynamics.
-
-== PI Stabilization
-
-A proportional--integral controller has
+Substitution groups the four scalar GoF functions into a $2 times 2$ array
+with a common denominator:
 
 $
-  C(s) = K_P + K_I / s = (K_P s + K_I) / s
+              1 + P C & = (a p + b q) / (a p) = Delta(s) / (a p) \
+  mat(S, C S; P S, T) & = 1 / Delta(s) mat(a p, a q; b p, b q)
 $
 
-For $P = b slash a$, the resulting characteristic polynomial is
-
-$
-  d(s) = s a(s) + (K_P s + K_I) b(s)
-$
-
-Construct its Routh table and solve the strict first-column inequalities for
-$K_P, K_I$. Check properness and well-posedness as above. If $K_I = 0$, reduce
-the controller to its proportional form and recompute $d(s)$ using coprime factors.
+At any zero of $Delta(s)$, coprimeness ensures that at least one of
+$a p$, $a q$, $b p$, and $b q$ is nonzero. Hence each root of $Delta(s)$ remains
+a pole of at least one GoF function: internal stability is equivalent to
+$Delta(s)$ being Hurwitz.
+Check $Delta(s)$ before cancelling cross-factors between the plant and controller;
+stability of $T$ alone can hide unstable internal dynamics.
 
 == Pole Placement Design
 
+Pole placement chooses the controller so that $Delta(s) = Delta_"des" (s)$.
 Given desired closed-loop poles $lambda_1, ..., lambda_N$, form
 
 $
-  c(s) = product_(i=1)^N (s - lambda_i)
+  Delta_"des" (s) = product_(i=1)^N (s - lambda_i)
 $
 
 Choose poles in $Re(s) < 0$ for stability; nonreal poles must occur in conjugate
@@ -568,7 +539,7 @@ pairs for a real-coefficient controller.
 For $P = b slash a$ and $C = q slash p$, impose the polynomial identity
 
 $
-  a(s) p(s) + b(s) q(s) = c(s)
+  a(s) p(s) + b(s) q(s) = Delta_"des" (s)
 $
 
 Choose a controller order, parameterize $p,q$, then equate coefficients of
@@ -582,9 +553,9 @@ $
 so the matching equation becomes
 
 $
-  p_0 s a(s) + p_1 a(s) + q_0 s b(s) + q_1 b(s) = c(s)
+  p_0 s a(s) + p_1 a(s) + q_0 s b(s) + q_1 b(s) = Delta_"des" (s)
 $
 
 Normalize the common scale of $p,q$ consistently with the leading coefficient
-of $c$. A chosen controller order may not admit a solution; check the coefficient
+of $Delta_"des" (s)$. A chosen controller order may not admit a solution; check the coefficient
 equations, properness, well-posedness, and the resulting internal stability.
