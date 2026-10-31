@@ -347,16 +347,37 @@ The following rules apply to scalar transfer functions, with zero initial condit
 == Polynomial Stability
 
 A real polynomial is *Hurwitz* (stable) if all its roots satisfy $Re(s) < 0$.
-Poles are the roots of a reduced transfer function's denominator. A causal,
-proper continuous-time rational system is BIBO stable iff all poles lie
-strictly in the left half-plane.
+Write $a(s) = a_0 s^n + a_1 s^(n-1) + dots + a_n$, with real coefficients and $a_0 > 0$.
+
+*Equivalent stability tests*
+
+Each of the following is necessary and sufficient for $a(s)$ to be Hurwitz:
+
+#table(
+  columns: (1fr, 2.5fr),
+  align: center + horizon,
+  inset: (x: 5pt, y: 6pt),
+  table.header([Method], [Condition]),
+  [Root locations], [Every root satisfies $Re(s) < 0$.],
+  [Routh first column], [$r_(i,0) > 0$ for $i = 0, ..., n$.],
+  [Entire Routh array], [All entries are positive, excluding zero padding.],
+)
+
+*BIBO stability*
+
+For a causal, proper rational LTI system with reduced transfer function
+$G(s) = b(s) slash a(s)$, the following are equivalent:
+
+$
+  "BIBO stable" quad <==> quad "poles in open LHP" quad <==> quad a(s) "is Hurwitz"
+$
 
 Input--output stability of one channel does not by itself establish internal
 stability when unstable modes may be hidden by pole--zero cancellation.
 
 == Routh Table
 
-Write $a(s) = a_0 s^n + a_1 s^(n-1) + dots + a_n$, with real coefficients and $a_0 > 0$:
+For the polynomial above, the first two rows contain alternating coefficients:
 
 #table(
   columns: (0.8fr, 1fr, 1fr, 1fr, 0.5fr),
@@ -382,11 +403,26 @@ $
 
 Missing entries are zero. Positive rescaling of a row preserves the stability test.
 
-*Routh criterion*
+#block(sticky: true)[*Routh criterion*]
 
 $
   a(s) " is Hurwitz" quad <==> quad r_(i,0) > 0 quad (i = 0, ..., n)
 $
+
+#block(sticky: true)[
+  For degrees $1$--$3$, the first-column test gives the following *Hurwitz conditions*,
+  with $a_0 > 0$:
+]
+
+#table(
+  columns: (0.5fr, 2fr, 2fr),
+  align: center + horizon,
+  inset: (x: 5pt, y: 7pt),
+  table.header([$n$], [Routh first column], [Hurwitz iff]),
+  $1$, [$a_0, a_1$], [$a_1 > 0$],
+  $2$, [$a_0, a_1, a_2$], [$a_1 > 0$, $a_2 > 0$],
+  $3$, [$a_0, a_1, (a_1 a_2 - a_0 a_3) / a_1, a_3$], [$a_1 > 0$, $a_2 > 0$, $a_3 > 0$;\ $a_1 a_2 > a_0 a_3$],
+)
 
 - Positive coefficients are necessary, but are not sufficient in general.
 - For parameter-dependent coefficients, require every first-column entry to be
@@ -408,8 +444,14 @@ $
 
   *Kharitonov theorem*
 
-  The entire family is Hurwitz iff its four Kharitonov polynomials are Hurwitz.
-  Construct them by repeating the following endpoint patterns in the *descending-power*
+  Under the assumptions above, robust stability is equivalent to either test:
+
+  - All four Kharitonov polynomials $K_1, ..., K_4$ are Hurwitz.
+  - All four Routh tables, one for each $K_j$, have strictly positive first columns.
+
+  *Endpoint construction*
+
+  Construct the four polynomials by repeating these patterns in the *descending-power*
   order $a_0, a_1, ..., a_n$:
 
   #table(
@@ -424,9 +466,9 @@ $
   )
 
   Here L and U select the lower bound $underline(a)_i$ and upper bound $overline(a)_i$, respectively.
-  Test all four with Routh; checking only the all-lower and all-upper polynomials
-  is insufficient. The theorem concerns independent coefficient intervals;
-  correlated parameter dependence need not fill the entire interval family.
+  Checking only the all-lower and all-upper polynomials is insufficient.
+  For correlated coefficient families, robust stability of an independent interval
+  enclosure is a sufficient guarantee; it need not be necessary.
 ]
 
 = Feedback Stabilization and Design
@@ -449,6 +491,28 @@ $
   S = 1 / (1 + P C), quad T = (P C) / (1 + P C), quad S + T = 1
 $
 
+Use real coprime plant/controller factors and define the characteristic polynomial $d(s)$:
+
+$
+  P(s) & = b(s) / a(s), quad C(s) = q(s) / p(s), quad gcd(a, b) = gcd(p, q) = 1 \
+  d(s) & := a(s) p(s) + b(s) q(s)
+$
+
+Assume $P$ and $C$ are *proper* (numerator degree does not exceed denominator degree)
+and $1 + P(infinity) C(infinity) != 0$ so the feedback loop is well posed.
+If either $P$ or $C$ is strictly proper, the well-posedness condition is automatic.
+
+*Equivalent internal-stability tests*
+
+Under these assumptions, internal stability is equivalent to each of the following:
+
+- *Gang of Four:* $S$, $C S$, $P S$, and $T$ are all stable.
+- *Characteristic polynomial:* $d(s)$ is Hurwitz.
+- *Routh test:* normalize the leading coefficient of $d(s)$ to be positive;
+  every first-column entry is positive.
+- *Cancellation test:* forming $P C$ involves no pole--zero cancellation in
+  $Re(s) >= 0$, *and* any one of $S$, $C S$, $P S$, or $T$ is stable.
+
 Solving the loop equations gives
 
 $
@@ -456,40 +520,19 @@ $
   u_2 & = P S w_1 + S w_2, quad & y_1 & = T w_1 + C S w_2
 $
 
-Hence the eight channels reduce to the four distinct transfer functions
-$S$, $C S$, $P S$, and $T$; all four must be stable.
+#block(breakable: false)[
+  == Closed-Loop Characteristic Polynomial
 
-== Closed-Loop Characteristic Polynomial
+  Substitution gives the common denominator and the *Gang of Four matrix*:
 
-Write the plant and controller in coprime form:
+  $
+                1 + P C & = (a p + b q) / (a p) \
+    mat(S, C S; P S, T) & = 1 / d(s) mat(a p, a q; b p, b q)
+  $
+]
 
-$
-  P(s) = b(s) / a(s), quad C(s) = q(s) / p(s), quad
-  gcd(a, b) = gcd(p, q) = 1
-$
-
-Then
-
-$
-  1 + P C = (a p + b q) / (a p), quad d(s) := a(s) p(s) + b(s) q(s)
-$
-
-and the *Gang of Four matrix* is
-
-$
-  mat(S, C S; P S, T) = 1 / d(s) mat(a p, a q; b p, b q)
-$
-
-Assume $P$ and $C$ are *proper* (numerator degree does not exceed denominator degree)
-and $1 + P(infinity) C(infinity) != 0$ so the feedback loop is well posed.
-Under these conditions, the following are equivalent:
-
-- The feedback interconnection is internally stable.
-- $d(s) = a p + b q$ is Hurwitz.
-- Forming $P C$ involves no pole--zero cancellation in $Re(s) >= 0$,
-  and any one of $S$, $C S$, $P S$, or $T$ is stable.
-
-If either $P$ or $C$ is strictly proper, the well-posedness condition is automatic.
+Coprimeness prevents a zero of $d(s)$ from cancelling in all four entries,
+which yields the characteristic-polynomial test above.
 Check $d(s)$ before cancelling cross-factors between the plant and controller;
 a stable reference-to-output transfer function alone can hide unstable internal dynamics.
 
