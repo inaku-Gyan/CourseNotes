@@ -16,98 +16,6 @@
 
 #let e = $upright(e)$
 
-= System Modeling
-
-== Modeling Methods
-
-A mathematical model relates a system's physical variables, especially its input and output.
-
-- *First-principle modeling:* derive equations from physical laws.
-- *System identification:* infer input--output relations from experimental data.
-- The two methods may be combined.
-
-== State-Space Models
-
-$
-  dot(Vec(x))(t) & = Mat(A) Vec(x)(t) + Mat(B) Vec(u)(t) \
-       Vec(y)(t) & = Mat(C) Vec(x)(t) + Mat(D) Vec(u)(t)
-$
-
-- $Vec(x)(t) in RR^n$: state vector
-- $Vec(u)(t) in RR^m$: input vector
-- $Vec(y)(t) in RR^r$: output vector
-
-For $n$ states, $m$ inputs, and $r$ outputs,
-$Mat(A) in RR^(n times n)$, $Mat(B) in RR^(n times m)$,
-$Mat(C) in RR^(r times n)$, and $Mat(D) in RR^(r times m)$.
-
-*Higher-Order ODEs*
-
-Any $n$-th order ODE can be rewritten as a system of $n$ first-order ODEs.
-Given an $n$-th order ODE
-
-$
-  y^((n)) = F(t, y, y', ..., y^((n-1)))
-$
-
-substituting $z_1 = y$, $z_2 = y'$, ..., $z_n = y^((n-1))$,
-we have
-
-$
-      z'_1 & = z_2 \
-      z'_2 & = z_3 \
-           & space dots.v \
-  z'_(n-1) & = z_n \
-      z'_n & = F(t, z_1, z_2, ..., z_n)
-$
-
-== Linearization
-
-For a time-invariant nonlinear system with continuously differentiable $Vec(f), Vec(g)$,
-
-$
-  dot(Vec(x)) = Vec(f)(Vec(x), Vec(u)), quad Vec(y) = Vec(g)(Vec(x), Vec(u))
-$
-
-An *operating point* $(Vec(x)_0, Vec(u)_0, Vec(y)_0)$ satisfies
-
-$
-  Vec(0) = Vec(f)(Vec(x)_0, Vec(u)_0), quad
-  Vec(y)_0 = Vec(g)(Vec(x)_0, Vec(u)_0)
-$
-
-With constant input $Vec(u)_0$ and initial state $Vec(x)_0$, the state and output
-remain at $Vec(x)_0$ and $Vec(y)_0$.
-
-Define deviations $tilde(Vec(x)) = Vec(x) - Vec(x)_0$,
-$tilde(Vec(u)) = Vec(u) - Vec(u)_0$, and $tilde(Vec(y)) = Vec(y) - Vec(y)_0$.
-The first-order Taylor expansion gives
-
-$
-  dot(Vec(x)) = Vec(f)(Vec(x)_0 + tilde(Vec(x)), Vec(u)_0 + tilde(Vec(u)))
-  & approx Vec(f)(Vec(x)_0, Vec(u)_0) + Mat(A) tilde(Vec(x)) + Mat(B) tilde(Vec(u)) \
-  Vec(y) = Vec(g)(Vec(x)_0 + tilde(Vec(x)), Vec(u)_0 + tilde(Vec(u)))
-  & approx Vec(y)_0 + Mat(C) tilde(Vec(x)) + Mat(D) tilde(Vec(u))
-$
-
-Using the operating-point equations and dropping higher-order terms,
-
-$
-  dot(tilde(Vec(x))) & approx Mat(A) tilde(Vec(x)) + Mat(B) tilde(Vec(u)) &
-  wide "where" wide
-  Mat(A) = lr((partial Vec(f)) / (partial Vec(x)) |)_((Vec(x)_0, Vec(u)_0)),
-  quad
-  Mat(B) = lr((partial Vec(f)) / (partial Vec(u)) |)_((Vec(x)_0, Vec(u)_0)) \
-  tilde(Vec(y)) & approx Mat(C) tilde(Vec(x)) + Mat(D) tilde(Vec(u)) &
-  Mat(C) = lr((partial Vec(g)) / (partial Vec(x)) |)_((Vec(x)_0, Vec(u)_0)),
-  quad
-  Mat(D) = lr((partial Vec(g)) / (partial Vec(u)) |)_((Vec(x)_0, Vec(u)_0))
-$
-
-- The linear model describes *deviations*, rather than the original variables.
-- Validity is local while the deviations remain small; smoothness alone does
-  not guarantee that a perturbed trajectory stays near the operating point.
-
 = Laplace Transforms
 
 Here $sigma(t)$ denotes the unit step and $delta(t)$ the unit impulse.
@@ -301,7 +209,97 @@ These use $X_+(s)$ and do not require the original signal to be causal.
   have negative real parts. A finite algebraic limit alone is insufficient:
   growing exponentials, sustained sinusoids, and ramps fail this check.
 
-= Transfer Functions and Block Diagrams
+= System Modeling
+
+== Modeling Methods
+
+A mathematical model relates a system's physical variables, especially its input and output.
+
+- *First-principle modeling:* derive equations from physical laws.
+- *System identification:* infer input--output relations from experimental data.
+- The two methods may be combined.
+
+== State-Space Models
+
+$
+  dot(Vec(x))(t) & = Mat(A) Vec(x)(t) + Mat(B) Vec(u)(t) \
+       Vec(y)(t) & = Mat(C) Vec(x)(t) + Mat(D) Vec(u)(t)
+$
+
+- $Vec(x)(t) in RR^n$: state vector
+- $Vec(u)(t) in RR^m$: input vector
+- $Vec(y)(t) in RR^r$: output vector
+
+For $n$ states, $m$ inputs, and $r$ outputs,
+$Mat(A) in RR^(n times n)$, $Mat(B) in RR^(n times m)$,
+$Mat(C) in RR^(r times n)$, and $Mat(D) in RR^(r times m)$.
+
+*Higher-Order ODEs*
+
+Any $n$-th order ODE can be rewritten as a system of $n$ first-order ODEs.
+Given an $n$-th order ODE
+
+$
+  y^((n)) = F(t, y, y', ..., y^((n-1)))
+$
+
+substituting $z_1 = y$, $z_2 = y'$, ..., $z_n = y^((n-1))$,
+we have
+
+$
+      z'_1 & = z_2 \
+      z'_2 & = z_3 \
+           & space dots.v \
+  z'_(n-1) & = z_n \
+      z'_n & = F(t, z_1, z_2, ..., z_n)
+$
+
+== Linearization
+
+For a time-invariant nonlinear system with continuously differentiable $Vec(f), Vec(g)$,
+
+$
+  dot(Vec(x)) = Vec(f)(Vec(x), Vec(u)), quad Vec(y) = Vec(g)(Vec(x), Vec(u))
+$
+
+An *operating point* $(Vec(x)_0, Vec(u)_0, Vec(y)_0)$ satisfies
+
+$
+  Vec(0) = Vec(f)(Vec(x)_0, Vec(u)_0), quad
+  Vec(y)_0 = Vec(g)(Vec(x)_0, Vec(u)_0)
+$
+
+With constant input $Vec(u)_0$ and initial state $Vec(x)_0$, the state and output
+remain at $Vec(x)_0$ and $Vec(y)_0$.
+
+Define deviations $tilde(Vec(x)) = Vec(x) - Vec(x)_0$,
+$tilde(Vec(u)) = Vec(u) - Vec(u)_0$, and $tilde(Vec(y)) = Vec(y) - Vec(y)_0$.
+The first-order Taylor expansion gives
+
+$
+  dot(Vec(x)) = Vec(f)(Vec(x)_0 + tilde(Vec(x)), Vec(u)_0 + tilde(Vec(u)))
+  & approx Vec(f)(Vec(x)_0, Vec(u)_0) + Mat(A) tilde(Vec(x)) + Mat(B) tilde(Vec(u)) \
+  Vec(y) = Vec(g)(Vec(x)_0 + tilde(Vec(x)), Vec(u)_0 + tilde(Vec(u)))
+  & approx Vec(y)_0 + Mat(C) tilde(Vec(x)) + Mat(D) tilde(Vec(u))
+$
+
+Using the operating-point equations and dropping higher-order terms,
+
+$
+  dot(tilde(Vec(x))) & approx Mat(A) tilde(Vec(x)) + Mat(B) tilde(Vec(u)) &
+  wide "where" wide
+  Mat(A) = lr((partial Vec(f)) / (partial Vec(x)) |)_((Vec(x)_0, Vec(u)_0)),
+  quad
+  Mat(B) = lr((partial Vec(f)) / (partial Vec(u)) |)_((Vec(x)_0, Vec(u)_0)) \
+  tilde(Vec(y)) & approx Mat(C) tilde(Vec(x)) + Mat(D) tilde(Vec(u)) &
+  Mat(C) = lr((partial Vec(g)) / (partial Vec(x)) |)_((Vec(x)_0, Vec(u)_0)),
+  quad
+  Mat(D) = lr((partial Vec(g)) / (partial Vec(u)) |)_((Vec(x)_0, Vec(u)_0))
+$
+
+- The linear model describes *deviations*, rather than the original variables.
+- Validity is local while the deviations remain small; smoothness alone does
+  not guarantee that a perturbed trajectory stays near the operating point.
 
 == Transfer Functions
 
