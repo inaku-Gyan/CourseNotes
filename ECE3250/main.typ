@@ -28,7 +28,7 @@ $
   X(s) = cal(L)_"b" {x(t)} := integral_(-infinity)^infinity x(t) #e^(-s t) dif t
 $
 
-#block(sticky: true)[*Common transform pairs*]
+=== Common transform pairs
 
 #block[
   #set text(size: 10pt)
@@ -56,7 +56,7 @@ $
 
 A bare sinusoid or constant extending over all time has no nonempty bilateral ROC.
 
-*Properties*
+=== Properties
 
 Let $cal(L)_"b" {x(t)} = X(s)$ and $cal(L)_"b" {y(t)} = Y(s)$,
 with ROCs $R_X$ and $R_Y$.
@@ -93,7 +93,7 @@ with ROCs $R_X$ and $R_Y$.
 - The Fourier transform is obtained as $X(j omega)$ when the imaginary axis
   lies in the ROC.
 
-*Initial and final value theorems*
+=== Initial and final value theorems
 
 The following are the standard forms for *causal* signals, for which
 $X(s) = X_+(s)$; use the causal ROC.
@@ -123,7 +123,7 @@ $
 
 For a causal signal, $X_+(s) = X(s)$.
 
-#block(sticky: true)[*Common transform pairs*]
+=== Common transform pairs
 
 #block[
   #set text(size: 10pt)
@@ -148,7 +148,7 @@ For a causal signal, $X_+(s) = X(s)$.
   )
 ]
 
-*Properties*
+=== Properties
 
 Let $cal(L)_+ {x(t)} = X_+(s)$ and $cal(L)_+ {y(t)} = Y_+(s)$,
 with ROCs $R_X$ and $R_Y$.
@@ -191,7 +191,7 @@ Write $x_c, y_c$ for their causal extensions, retaining any impulses at zero.
 - The unilateral transform does not determine the pre-initial values
   $x^((k))(0^-)$; supply these separately when transforming derivatives.
 
-*Initial and final value theorems*
+=== Initial and final value theorems
 
 These use $X_+(s)$ and do not require the original signal to be causal.
 
@@ -354,7 +354,7 @@ Use $a_0 > 0$ below; division by $a_0$ makes it *monic* (leading coefficient $1$
 Before scaling, all first-column entries must have the same nonzero sign.
 Remove leading zeros before fixing the degree $n$.
 
-*Equivalent stability tests*
+=== Equivalent stability tests
 
 Each of the following is necessary and sufficient for $a(s)$ to be Hurwitz:
 
@@ -368,7 +368,7 @@ Each of the following is necessary and sufficient for $a(s)$ to be Hurwitz:
   [Entire Routh array], [All entries are positive, excluding zero padding.],
 )
 
-*BIBO stability*
+=== BIBO stability
 
 For a causal, proper rational LTI system with reduced transfer function
 $G(s) = b(s) slash a(s)$, the following are equivalent:
@@ -445,14 +445,12 @@ Missing entries are zero. Positive rescaling of a row preserves the stability te
   Assume a fixed degree and $0 < underline(a)_0 <= overline(a)_0$.
   The family is *robustly stable* if every member is Hurwitz.
 
-  *Kharitonov theorem*
+  === Kharitonov theorem
 
   Under the assumptions above, robust stability is equivalent to either test:
 
   - All four Kharitonov polynomials $K_1, ..., K_4$ are Hurwitz.
   - All four Routh tables, one for each $K_j$, have strictly positive first columns.
-
-  *Endpoint construction*
 
   Construct the four polynomials by repeating these patterns in the *descending-power*
   order $a_0, a_1, ..., a_n$:
@@ -497,7 +495,7 @@ $
   Delta(s) & := a(s) p(s) + b(s) q(s)
 $
 
-*Well-posedness*
+=== Well-posedness
 
 Assume $P,C$ are *proper* (numerator degree does not exceed denominator degree).
 The feedback loop is *well posed* when its instantaneous feedback relations are
@@ -519,7 +517,7 @@ If the leading terms cancel, $S = a p slash Delta$ is undefined or improper.
 Check well-posedness before testing $Delta$ for Hurwitz stability;
 lowering its degree and checking only the remaining finite roots is insufficient.
 
-*Equivalent internal-stability tests*
+=== Equivalent internal-stability tests
 
 Assume:
 
@@ -536,7 +534,7 @@ Assume:
   $Re(s) >= 0$, and any one of $S$, $C S$, $P S$, or $T$ is stable.
 
 #block(breakable: false)[
-  *Characteristic-polynomial test*
+  === Characteristic-polynomial test
 
   Substitution groups the four scalar GoF functions into a $2 times 2$ array
   with a common denominator:
@@ -583,7 +581,7 @@ $
 Pad $b$ to degree $n$ and set $a_i = b_i = 0$ outside $0 <= i <= n$.
 Bold $Mat(T),Mat(S)$ distinguish matrices from scalar GoF $T,S$.
 
-#block(sticky: true)[*Toeplitz Matrices*]
+=== Toeplitz Matrices
 
 A *Toeplitz matrix* is constant along each diagonal. The two convolution matrices are
 
@@ -627,7 +625,7 @@ $
 
 Thus $k$ counts multiplier coefficients; the multiplier degree is at most $k-1$.
 
-#block(sticky: true)[*Sylvester's Resultant Matrix*]
+=== Sylvester's Resultant Matrix
 
 Combine the two convolution matrices:
 
@@ -661,7 +659,7 @@ To see the rank count, $a p + b q = 0$ implies $p = b h$, $q = -a h$ by coprimen
 The degree bounds give $deg h <= k-n-1$, so the nullity is $max(k-n, 0)$.
 
 #block(breakable: false)[
-  *Proper Controller Parameterization*
+  === Proper Controller Parameterization
 
   For nominal controller order $m >= 0$, choose target degree $N=n+m$ and write
 
@@ -694,7 +692,7 @@ At $m=n-1$, the solution is unique; for $m>n-1$, there are $m+1-n$ free paramete
 For $m<n-1$, only consistent targets are attainable.
 
 #block(breakable: false)[
-  *Strictly Proper Controller Parameterization*
+  === Strictly Proper Controller Parameterization
 
   For $m >= 1$, set $q_0=0$. Comparing the leading and remaining coefficients gives
 
