@@ -347,7 +347,12 @@ The following rules apply to scalar transfer functions, with zero initial condit
 == Polynomial Stability
 
 A real polynomial is *Hurwitz* (stable) if all its roots satisfy $Re(s) < 0$.
-Write $a(s) = a_0 s^n + a_1 s^(n-1) + dots + a_n$, with real coefficients and $a_0 > 0$.
+Write $a(s) = a_0 s^n + a_1 s^(n-1) + dots + a_n$, with real coefficients and $a_0 != 0$.
+
+Scaling the whole polynomial by a nonzero constant preserves its roots.
+Use $a_0 > 0$ below; division by $a_0$ makes it *monic* (leading coefficient $1$).
+Before scaling, all first-column entries must have the same nonzero sign.
+Remove leading zeros before fixing the degree $n$.
 
 *Equivalent stability tests*
 
@@ -403,11 +408,9 @@ $
 
 Missing entries are zero. Positive rescaling of a row preserves the stability test.
 
-#block(sticky: true)[*Routh criterion*]
-
-$
-  a(s) " is Hurwitz" quad <==> quad r_(i,0) > 0 quad (i = 0, ..., n)
-$
+#block(sticky: true)[
+  *Routh criterion:* with $a_0 > 0$, $a(s)$ is Hurwitz iff every $r_(i,0) > 0$.
+]
 
 #block(sticky: true)[
   For degrees $1$--$3$, the first-column test gives the following *Hurwitz conditions*,
@@ -494,28 +497,55 @@ $
   Delta(s) & := a(s) p(s) + b(s) q(s)
 $
 
-Assume $P$ and $C$ are *proper* (numerator degree does not exceed denominator degree)
-and $1 + P(infinity) C(infinity) != 0$ so the feedback loop is well posed.
-If either $P$ or $C$ is strictly proper, the well-posedness condition is automatic.
+*Well-posedness*
+
+Assume $P,C$ are *proper* (numerator degree does not exceed denominator degree).
+The feedback loop is *well posed* when its instantaneous feedback relations are
+uniquely solvable; equivalently, all four GoF functions exist and are proper.
+
+Let $n=deg a$, $m=deg p$, with leading coefficients $a_0,p_0 != 0$.
+Pad the numerator coefficients $b_0,q_0$ to the same respective degrees. Then
+
+$
+  1 + P(infinity) C(infinity) = 1 + frac(b_0, a_0) frac(q_0, p_0)
+  = (a_0 p_0 + b_0 q_0) / (a_0 p_0)
+$
+
+Well-posedness requires this quantity to be nonzero, equivalently
+$a_0 p_0 + b_0 q_0 != 0$ and $deg Delta = n+m$.
+If either $P$ or $C$ is strictly proper, the condition is automatic.
+
+If the leading terms cancel, $S = a p slash Delta$ is undefined or improper.
+Check well-posedness before testing $Delta$ for Hurwitz stability;
+lowering its degree and checking only the remaining finite roots is insufficient.
 
 *Equivalent internal-stability tests*
 
-Under these assumptions, internal stability is equivalent to each of the following:
+Assume:
+
+- Loop: continuous-time SISO LTI negative feedback.
+- Models: $P=b slash a$ and $C=q slash p$ are proper real-rational transfer functions.
+- Coprime factors: $gcd(a, b)=gcd(p, q)=1$.
+- Well-posedness: $1+P(infinity) C(infinity) != 0$.
+
+*Internal stability* is then equivalent to each of the following:
 
 - *Gang of Four:* $S$, $C S$, $P S$, and $T$ are all stable.
 - *Characteristic polynomial:* $Delta(s)$ is Hurwitz (stable).
 - *Cancellation test:* forming $P C$ involves no pole--zero cancellation in
   $Re(s) >= 0$, and any one of $S$, $C S$, $P S$, or $T$ is stable.
 
-*Characteristic-polynomial test*
+#block(breakable: false)[
+  *Characteristic-polynomial test*
 
-Substitution groups the four scalar GoF functions into a $2 times 2$ array
-with a common denominator:
+  Substitution groups the four scalar GoF functions into a $2 times 2$ array
+  with a common denominator:
 
-$
-              1 + P C & = (a p + b q) / (a p) = Delta(s) / (a p) \
-  mat(S, C S; P S, T) & = 1 / Delta(s) mat(a p, a q; b p, b q)
-$
+  $
+                1 + P C & = (a p + b q) / (a p) = Delta(s) / (a p) \
+    mat(S, C S; P S, T) & = 1 / Delta(s) mat(a p, a q; b p, b q)
+  $
+]
 
 At any zero of $Delta(s)$, coprimeness ensures that at least one of
 $a p$, $a q$, $b p$, and $b q$ is nonzero. Hence each root of $Delta(s)$ remains
@@ -576,11 +606,13 @@ $
   )
 $
 
-For $k >= 1$, each has $n+k$ rows and $k$ columns; equivalently,
+#block(breakable: false)[
+  For $k >= 1$, each has $n+k$ rows and $k$ columns; equivalently,
 
-$
-  [Mat(T)(a, k)]_(i,j) := a_(i-j)
-$
+  $
+    [Mat(T)(a, k)]_(i,j) := a_(i-j)
+  $
+]
 
 Here $i = 0, ..., n+k-1$ and $j = 0, ..., k-1$.
 Each column is the coefficient vector shifted one position farther down.
@@ -628,32 +660,34 @@ For coprime $a,b$, the rank is $min(2k, n+k)$:
 To see the rank count, $a p + b q = 0$ implies $p = b h$, $q = -a h$ by coprimeness.
 The degree bounds give $deg h <= k-n-1$, so the nullity is $max(k-n, 0)$.
 
-#block(sticky: true)[*Proper Controller Parameterization*]
+#block(breakable: false)[
+  *Proper Controller Parameterization*
 
-For nominal controller order $m >= 0$, choose target degree $N=n+m$ and write
+  For nominal controller order $m >= 0$, choose target degree $N=n+m$ and write
 
-$
-             p(s) & = p_0 s^m + dots.h + p_m, quad q(s) = q_0 s^m + dots.h + q_m \
-  Delta_"des" (s) & = d_0 s^(n+m) + dots.h + d_(n+m)
-$
+  $
+               p(s) & = p_0 s^m + dots.h + p_m, quad q(s) = q_0 s^m + dots.h + q_m \
+    Delta_"des" (s) & = d_0 s^(n+m) + dots.h + d_(n+m)
+  $
 
-The intended denominator degree requires $p_0 != 0$; the monic target above has $d_0=1$.
-There are $2m+2$ unknown coefficients and $n+m+1$ matching equations:
+  The intended denominator degree requires $p_0 != 0$; the monic target above has $d_0=1$.
+  There are $2m+2$ unknown coefficients and $n+m+1$ matching equations:
 
-$
-  underbrace(
-    mat(
-      a_0, 0, dots.h, 0, b_0, 0, dots.h, 0;
-      a_1, a_0, dots.down, dots.v, b_1, b_0, dots.down, dots.v;
-      dots.v, dots.v, dots.down, dots.v, dots.v, dots.v, dots.down, dots.v;
-      a_n, a_(n-1), dots.h, a_(n-m), b_n, b_(n-1), dots.h, b_(n-m);
-      dots.v, dots.v, dots.down, dots.v, dots.v, dots.v, dots.down, dots.v;
-      0, 0, dots.h, a_n, 0, 0, dots.h, b_n;
-    ),
-    Mat(S)(a, b, m+1),
-  ) vec(p_0, dots.v, p_m, q_0, dots.v, q_m)
-  = vec(d_0, d_1, dots.v, d_(n+m))
-$
+  $
+    underbrace(
+      mat(
+        a_0, 0, dots.h, 0, b_0, 0, dots.h, 0;
+        a_1, a_0, dots.down, dots.v, b_1, b_0, dots.down, dots.v;
+        dots.v, dots.v, dots.down, dots.v, dots.v, dots.v, dots.down, dots.v;
+        a_n, a_(n-1), dots.h, a_(n-m), b_n, b_(n-1), dots.h, b_(n-m);
+        dots.v, dots.v, dots.down, dots.v, dots.v, dots.v, dots.down, dots.v;
+        0, 0, dots.h, a_n, 0, 0, dots.h, b_n;
+      ),
+      Mat(S)(a, b, m+1),
+    ) vec(p_0, dots.v, p_m, q_0, dots.v, q_m)
+    = vec(d_0, d_1, dots.v, d_(n+m))
+  $
+]
 
 With $k=m+1$, every target coefficient vector is matchable iff $m >= n-1$. \
 At $m=n-1$, the solution is unique; for $m>n-1$, there are $m+1-n$ free parameters.
