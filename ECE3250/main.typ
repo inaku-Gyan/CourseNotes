@@ -328,6 +328,123 @@ $
 
 For SISO systems, $Mat(H)(s)$ reduces to the scalar $G(s)$.
 
+== Controller and Observer Forms (MISO) <miso-forms>
+
+Consider a real continuous-time *multiple-input, single-output* model:
+
+$
+  dot(Vec(x)) = Mat(A) Vec(x) + Mat(B) Vec(u), quad y = Mat(C) Vec(x) + Mat(D) Vec(u)
+$
+
+Here $Vec(x) in RR^n$, $Vec(u) in RR^m$, $y in RR$,
+$Mat(B) in RR^(n times m)$, $Mat(C) in RR^(1 times n)$, and
+$Mat(D) in RR^(1 times m)$. Define
+
+$
+  cal(R) & = mat(Mat(B), Mat(A) Mat(B), dots.h, Mat(A)^(n-1) Mat(B)) \
+  cal(O) & = mat(Mat(C); Mat(C) Mat(A); dots.v; Mat(C) Mat(A)^(n-1)) \
+  p_A(s) & = det(s Mat(I) - Mat(A)) = s^n + alpha_1 s^(n-1) + dots.h + alpha_n
+$
+
+The model is *controllable* iff $op("rank")(cal(R)) = n$ and *observable*
+iff $op("rank")(cal(O)) = n$. It is a *minimal realization* iff both hold.
+
+=== Controller Form <miso-controller-form>
+
+// Multi-input controller canonical transformation:
+// https://web.iitd.ac.in/~subashish/ELP7100/ELP7100_Lab_Exp1_Problems.pdf
+
+Assume controllability. Scan $cal(R)$ from left to right, retaining each column
+that increases the rank. Then group the retained columns by input into
+$q = op("rank")(Mat(B))$ nonempty chains:
+
+$
+  Mat(W) & = mat(Mat(W)_1, dots.h, Mat(W)_q) \
+  Mat(W)_i & = mat(Vec(b)_(j_i), Mat(A) Vec(b)_(j_i), dots.h, Mat(A)^(nu_i-1) Vec(b)_(j_i)) \
+  sum_(i=1)^q nu_i & = n, quad nu_i >= 1, quad sigma_i = sum_(j=1)^i nu_j
+$
+
+Here $Vec(b)_j$ is column $j$ of $Mat(B)$; the $nu_i$ are the *controllability
+indices*. Empty chains are omitted while all $m$ inputs are retained.
+Let $Vec(w)_i^top$ be row $sigma_i$ of $Mat(W)^(-1)$ and set
+
+$
+  Mat(T)_c = mat(Mat(T)_1; dots.v; Mat(T)_q), quad
+  Mat(T)_i = mat(Vec(w)_i^top; Vec(w)_i^top Mat(A); dots.v; Vec(w)_i^top Mat(A)^(nu_i-1)),
+  quad Vec(z)_c = Mat(T)_c Vec(x)
+$
+
+Write $Mat(J)_k$ for the $k times k$ matrix with ones on its superdiagonal
+and zeros elsewhere, and $Vec(e)_j$ for column $j$ of $Mat(I)_n$. Define
+
+$
+  Mat(J) & = op("diag")(Mat(J)_(nu_1), dots.h, Mat(J)_(nu_q)), quad
+  Mat(E) = mat(Vec(e)_(sigma_1), dots.h, Vec(e)_(sigma_q)) \
+  Mat(A)_c & = Mat(T)_c Mat(A) Mat(T)_c^(-1) = Mat(J) + Mat(E) Mat(F)_c \
+  Mat(B)_c & = Mat(T)_c Mat(B) = Mat(E) Mat(H)_c, quad
+  Mat(C)_c = Mat(C) Mat(T)_c^(-1), quad Mat(D)_c = Mat(D)
+$
+
+The terminal rows are $Mat(F)_c = Mat(E)^top Mat(A)_c in RR^(q times n)$ and
+$Mat(H)_c = Mat(E)^top Mat(B)_c in RR^(q times m)$, with
+$op("rank")(Mat(H)_c) = q$.
+Within each chain, $dot(z)_(i,k) = z_(i,k+1)$ for $k < nu_i$;
+only its final row contains input terms and coupling to other chains.
+
+=== Observer Form <miso-observer-form>
+
+// Single-output observer form and MISO realization:
+// https://web01.usn.no/~davidr/iia1117/control/theory/pensum/main_e.pdf
+
+Assume observability. With $alpha_0 = 1$, define
+
+$
+  Vec(t)_i^top = sum_(ell=0)^(i-1) alpha_ell Mat(C) Mat(A)^(i-1-ell), quad
+  Mat(T)_o = mat(Vec(t)_1^top; dots.v; Vec(t)_n^top), quad Vec(z)_o = Mat(T)_o Vec(x)
+$
+
+#block(sticky: true)[
+  Then $Mat(T)_o$ is invertible and the single-output companion form is
+]
+
+$
+  Mat(A)_o & = Mat(T)_o Mat(A) Mat(T)_o^(-1)
+    = mat(
+      -alpha_1, 1, 0, dots.h, 0;
+      -alpha_2, 0, 1, dots.h, 0;
+      dots.v, dots.v, dots.v, dots.down, dots.v;
+      -alpha_(n-1), 0, 0, dots.h, 1;
+      -alpha_n, 0, 0, dots.h, 0;
+    ) \
+  Mat(B)_o & = Mat(T)_o Mat(B), quad
+  Mat(C)_o = mat(1, 0, dots.h, 0), quad Mat(D)_o = Mat(D)
+$
+
+It can also be read directly from a *proper* MISO transfer row. Normalize a
+common denominator to be monic and pad all numerators to degree $n$:
+
+$
+  Mat(G)(s) = frac(sum_(i=0)^n Vec(beta)_i^top s^(n-i),
+    s^n + alpha_1 s^(n-1) + dots.h + alpha_n), quad Vec(beta)_i in RR^m
+$
+
+The same companion structure gives
+
+$
+  Mat(D)_o = Vec(beta)_0^top, quad
+  Mat(B)_o = mat(
+    Vec(beta)_1^top - alpha_1 Mat(D)_o;
+    dots.v;
+    Vec(beta)_n^top - alpha_n Mat(D)_o;
+  )
+$
+
+For a strictly proper transfer row, $Mat(D)_o = Mat(0)$.
+The least common denominator of the reduced input-channel transfer functions
+gives a minimal MISO observer-form realization.
+Duality maps $(Mat(A), Mat(B), Mat(C), Mat(D))$ to
+$(Mat(A)^top, Mat(C)^top, Mat(B)^top, Mat(D)^top)$ and interchanges *MISO* and *SIMO*.
+
 == Block Diagram Algebra
 
 The following rules apply to scalar transfer functions, with zero initial conditions.
@@ -713,3 +830,115 @@ Lower orders require a consistent target.
 These bounds concern coefficient matching. Check $p_0 != 0$, reduce $p,q$ to coprime form,
 then verify actual controller order, properness, well-posedness, and internal stability.
 The target's leading coefficient fixes their common scale.
+
+#block(breakable: false)[
+  == State Feedback and Observer Design (MISO)
+
+  Use the MISO model in @miso-forms; here $m$ denotes the number of plant inputs.
+
+  === State Feedback
+
+  Full-state feedback has an $m times n$ gain matrix:
+
+  $
+    Vec(u) & = -Mat(K) Vec(x) + Vec(v), quad Mat(K) in RR^(m times n) \
+    dot(Vec(x)) & = (Mat(A) - Mat(B) Mat(K)) Vec(x) + Mat(B) Vec(v) \
+    y & = (Mat(C) - Mat(D) Mat(K)) Vec(x) + Mat(D) Vec(v)
+  $
+]
+
+For desired poles $lambda_1, dots, lambda_n$, choose
+
+$
+  p_c(s) & = product_(i=1)^n (s - lambda_i)
+    = s^n + kappa_1 s^(n-1) + dots.h + kappa_n \
+  det(s Mat(I) - Mat(A) + Mat(B) Mat(K)) & = p_c(s)
+$
+
+Arbitrary pole assignment is possible iff $op("rank")(cal(R)) = n$.
+Use poles in the open LHP for stability and conjugate pairs for real gains.
+Stabilization alone requires *stabilizability*: every uncontrollable mode
+must already be stable.
+
+The controller form in @miso-controller-form gives one constructive gain.
+Let $Mat(A)_"des"$ be the $n$-state companion matrix for $p_c$:
+
+$
+  Mat(A)_"des" & = Mat(J)_n - Vec(e)_n mat(kappa_n, kappa_(n-1), dots.h, kappa_1) \
+  Mat(H)_c^R & = Mat(H)_c^top (Mat(H)_c Mat(H)_c^top)^(-1), quad
+  Mat(H)_c Mat(H)_c^R = Mat(I)_q \
+  Mat(K) & = Mat(H)_c^R (Mat(F)_c - Mat(E)^top Mat(A)_"des") Mat(T)_c
+$
+
+// The gain follows by matching the terminal rows of the controller chains.
+// A_des shares every nonterminal shift row with A_c.
+
+This replaces the chain-terminal rows by those of $Mat(A)_"des"$, so
+
+$
+  Mat(T)_c (Mat(A) - Mat(B) Mat(K)) Mat(T)_c^(-1) = Mat(A)_"des"
+$
+
+With multiple inputs, a prescribed set of poles generally admits several gains.
+
+=== Luenberger Observer
+
+For known input $Vec(u)$ and measured scalar output $y$, use
+
+$
+  dot(hat(Vec(x))) & = Mat(A) hat(Vec(x)) + Mat(B) Vec(u)
+    + Mat(L) (y - Mat(C) hat(Vec(x)) - Mat(D) Vec(u)), quad Mat(L) in RR^(n times 1) \
+  Vec(e) & = Vec(x) - hat(Vec(x)), quad dot(Vec(e)) = (Mat(A) - Mat(L) Mat(C)) Vec(e)
+$
+
+The innovation subtracts the known direct term $Mat(D) Vec(u)$.
+Arbitrary observer poles are assignable iff $op("rank")(cal(O)) = n$;
+error convergence alone requires *detectability*: every unobservable mode
+must already be stable.
+
+#block(sticky: true)[
+  Choose observer poles $mu_i$ in the open LHP, with conjugate pairs for a real
+  gain, and form the error polynomial
+]
+
+$
+  p_o(s) = product_(i=1)^n (s - mu_i) = s^n + eta_1 s^(n-1) + dots.h + eta_n
+$
+
+In the observer form of @miso-observer-form, output injection changes only
+the first column. Hence
+
+$
+  Mat(L)_o = vec(eta_1 - alpha_1, dots.v, eta_n - alpha_n), quad
+  Mat(L) = Mat(T)_o^(-1) Mat(L)_o, quad
+  det(s Mat(I) - Mat(A) + Mat(L) Mat(C)) = p_o(s)
+$
+
+=== Observer-Based Feedback and Separation Principle
+
+// Joint observer/controller design; the equations below retain nonzero D:
+// https://courses.grainger.illinois.edu/ece486/sp2026/documentation/handbook/lec23.html
+
+Use both gains in the original state coordinates. For regulation, replace
+the unmeasured state by its estimate:
+
+$
+  Vec(u) & = -Mat(K) hat(Vec(x)) \
+  dot(hat(Vec(x))) & = (Mat(A) - Mat(B) Mat(K) - Mat(L) Mat(C)
+    + Mat(L) Mat(D) Mat(K)) hat(Vec(x)) + Mat(L) y
+$
+
+The plant and error dynamics are block triangular:
+
+$
+  vec(dot(Vec(x)), dot(Vec(e))) = mat(
+    Mat(A) - Mat(B) Mat(K), Mat(B) Mat(K);
+    Mat(0), Mat(A) - Mat(L) Mat(C);
+  ) vec(Vec(x), Vec(e))
+$
+
+Thus the $2n$ closed-loop poles are the poles of $Mat(A) - Mat(B) Mat(K)$
+together with those of $Mat(A) - Mat(L) Mat(C)$; their characteristic polynomial
+is $p_c(s) p_o(s)$. The *separation principle* permits independent feedback and
+observer pole placement. The combined loop is internally stable when both
+matrices are Hurwitz.
