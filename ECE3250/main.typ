@@ -4,7 +4,7 @@
 #show: ilm.with(
   title: [ECE 3250\ System and Control],
   authors: "Yiqing Shao",
-  date: datetime(year: 2026, month: 10, day: 30),
+  date: datetime(year: 2026, month: 11, day: 1),
 )
 
 #show: style.apply
@@ -16,35 +16,43 @@
 
 #let e = $upright(e)$
 
-= State-Space Models
+= System Modeling
+
+== Modeling Methods
+
+A mathematical model relates a system's physical variables, especially its input and output.
+
+- *First-principle modeling:* derive equations from physical laws.
+- *System identification:* infer input--output relations from experimental data.
+- The two methods may be combined.
+
+== State-Space Models
 
 $
   dot(Vec(x))(t) & = Mat(A) Vec(x)(t) + Mat(B) Vec(u)(t) \
        Vec(y)(t) & = Mat(C) Vec(x)(t) + Mat(D) Vec(u)(t)
 $
-- $Vec(x)(t)$: state vector
-- $Vec(u)(t)$: input vector
-- $Vec(y)(t)$: output vector
 
-Under zero initial conditions $Vec(x)(0) = Vec(0)$,
-$
-  (s Mat(I) - Mat(A)) Vec(X)(s) & = Mat(B) Vec(U)(s) \
-                      Vec(Y)(s) & = Mat(C) Vec(X)(s) + Mat(D) Vec(U)(s)
-$
-The transfer function matrix is given by
-$
-  Mat(H)(s) = Mat(C) (s Mat(I) - Mat(A))^(-1) Mat(B) + Mat(D)
-$
+- $Vec(x)(t) in RR^n$: state vector
+- $Vec(u)(t) in RR^m$: input vector
+- $Vec(y)(t) in RR^r$: output vector
 
-#line()
+For $n$ states, $m$ inputs, and $r$ outputs,
+$Mat(A) in RR^(n times n)$, $Mat(B) in RR^(n times m)$,
+$Mat(C) in RR^(r times n)$, and $Mat(D) in RR^(r times m)$.
+
+*Higher-Order ODEs*
 
 Any $n$-th order ODE can be rewritten as a system of $n$ first-order ODEs.
 Given an $n$-th order ODE
+
 $
   y^((n)) = F(t, y, y', ..., y^((n-1)))
 $
+
 substituting $z_1 = y$, $z_2 = y'$, ..., $z_n = y^((n-1))$,
 we have
+
 $
       z'_1 & = z_2 \
       z'_2 & = z_3 \
@@ -53,6 +61,53 @@ $
       z'_n & = F(t, z_1, z_2, ..., z_n)
 $
 
+== Linearization
+
+For a time-invariant nonlinear system with continuously differentiable $Vec(f), Vec(g)$,
+
+$
+  dot(Vec(x)) = Vec(f)(Vec(x), Vec(u)), quad Vec(y) = Vec(g)(Vec(x), Vec(u))
+$
+
+An *operating point* $(Vec(x)_0, Vec(u)_0, Vec(y)_0)$ satisfies
+
+$
+  Vec(0) = Vec(f)(Vec(x)_0, Vec(u)_0), quad
+  Vec(y)_0 = Vec(g)(Vec(x)_0, Vec(u)_0)
+$
+
+With constant input $Vec(u)_0$ and initial state $Vec(x)_0$, the state and output
+remain at $Vec(x)_0$ and $Vec(y)_0$.
+
+Define deviations $tilde(Vec(x)) = Vec(x) - Vec(x)_0$,
+$tilde(Vec(u)) = Vec(u) - Vec(u)_0$, and $tilde(Vec(y)) = Vec(y) - Vec(y)_0$.
+The first-order Taylor expansion gives
+
+$
+  dot(Vec(x)) = Vec(f)(Vec(x)_0 + tilde(Vec(x)), Vec(u)_0 + tilde(Vec(u)))
+  & approx Vec(f)(Vec(x)_0, Vec(u)_0) + Mat(A) tilde(Vec(x)) + Mat(B) tilde(Vec(u)) \
+  Vec(y) = Vec(g)(Vec(x)_0 + tilde(Vec(x)), Vec(u)_0 + tilde(Vec(u)))
+  & approx Vec(y)_0 + Mat(C) tilde(Vec(x)) + Mat(D) tilde(Vec(u))
+$
+
+Using the operating-point equations and dropping higher-order terms,
+
+$
+  dot(tilde(Vec(x))) & approx Mat(A) tilde(Vec(x)) + Mat(B) tilde(Vec(u)) &
+  wide "where" wide
+  Mat(A) = lr((partial Vec(f)) / (partial Vec(x)) |)_((Vec(x)_0, Vec(u)_0)),
+  quad
+  Mat(B) = lr((partial Vec(f)) / (partial Vec(u)) |)_((Vec(x)_0, Vec(u)_0)) \
+  tilde(Vec(y)) & approx Mat(C) tilde(Vec(x)) + Mat(D) tilde(Vec(u)) &
+  Mat(C) = lr((partial Vec(g)) / (partial Vec(x)) |)_((Vec(x)_0, Vec(u)_0)),
+  quad
+  Mat(D) = lr((partial Vec(g)) / (partial Vec(u)) |)_((Vec(x)_0, Vec(u)_0))
+$
+
+- The linear model describes *deviations*, rather than the original variables.
+- Validity is local while the deviations remain small; smoothness alone does
+  not guarantee that a perturbed trajectory stays near the operating point.
+
 = Laplace Transforms
 
 Here $sigma(t)$ denotes the unit step and $delta(t)$ the unit impulse.
@@ -60,9 +115,11 @@ Here $sigma(t)$ denotes the unit step and $delta(t)$ the unit impulse.
 == Bilateral Laplace Transform
 
 The bilateral (two-sided) Laplace transform is
+
 $
   X(s) = cal(L)_"b" {x(t)} := integral_(-infinity)^infinity x(t) #e^(-s t) dif t
 $
+
 #block(sticky: true)[*Common transform pairs*]
 
 #block[
@@ -128,15 +185,34 @@ with ROCs $R_X$ and $R_Y$.
 - The Fourier transform is obtained as $X(j omega)$ when the imaginary axis
   lies in the ROC.
 
-- For causal signals, the initial and final value theorems
-  below also apply, subject to their stated conditions.
+*Initial and final value theorems*
+
+The following are the standard forms for *causal* signals, for which
+$X(s) = X_+(s)$; use the causal ROC.
+
+- *Initial value:*
+  $ x(0^+) = lim_(s -> +infinity) s X(s) $
+  Take the limit along the positive real axis within the ROC. The finite
+  right-hand value must exist, with no impulse or impulse derivatives at the origin.
+
+- *Final value:*
+  $ lim_(t -> infinity) x(t) = lim_(s -> 0^+) s X(s) $
+  For rational $X(s)$, every pole of $s X(s)$ after cancellation must lie strictly
+  in the open left half-plane. Thus $X(s)$ may have a simple pole at zero,
+  while all other poles must have negative real parts. A finite algebraic limit
+  alone is insufficient.
+
+These are not general identities for noncausal signals; the signal's time support
+and ROC matter.
 
 == Unilateral Laplace Transform
 
 The unilateral (one-sided) Laplace transform uses the $0^-$ convention:
+
 $
   X_+(s) = cal(L)_+ {x(t)} := integral_(0^-)^infinity x(t) #e^(-s t) dif t
 $
+
 For a causal signal, $X_+(s) = X(s)$.
 
 #block(sticky: true)[*Common transform pairs*]
@@ -204,17 +280,18 @@ Write $x_c, y_c$ for their causal extensions, retaining any impulses at zero.
   The same open-ROC convention and existence conditions apply; cancellation
   of terms may enlarge the guaranteed regions in the table.
 
-- The signals $x(t) = 1$ and $x(t) = sigma(t)$ both transform to $1 slash s$, but their
-  pre-initial values are $1$ and $0$, respectively. Thus their derivatives
-  transform to $0$ and $1$, consistently with $dif sigma(t) slash dif t = delta(t)$.
+- The unilateral transform does not determine the pre-initial values
+  $x^((k))(0^-)$; supply these separately when transforming derivatives.
 
 *Initial and final value theorems*
+
+These use $X_+(s)$ and do not require the original signal to be causal.
 
 - *Initial value:*
   $ x(0^+) = lim_(s -> +infinity) s X_+(s) $
   The limit is taken along the positive real axis. The finite right-hand
   value must exist, and $x$ must have no impulse or impulse derivatives at
-  the origin. This gives $x(0^+)$, not at the initial time $0^-$ of the transform.
+  the origin. This gives $x(0^+)$; the derivative formulas instead use $x(0^-)$.
 
 - *Final value:*
   $ lim_(t -> infinity) x(t) = lim_(s -> 0^+) s X_+(s) $
@@ -223,3 +300,250 @@ Write $x_c, y_c$ for their causal extensions, retaining any impulses at zero.
   $X_+(s)$ may have a simple pole at zero, while all its other poles must
   have negative real parts. A finite algebraic limit alone is insufficient:
   growing exponentials, sustained sinusoids, and ramps fail this check.
+
+= Transfer Functions and Block Diagrams
+
+== Transfer Functions
+
+With *zero initial conditions*, the SISO LTI *transfer function* is
+
+$
+  G(s) := Y(s) / U(s)
+$
+
+A nonzero initial state adds a separate response.
+
+*State space to transfer function*
+
+Taking the Laplace transform with $Vec(x)(0^-) = Vec(0)$ gives
+
+$
+  s Vec(X) & = Mat(A) Vec(X) + Mat(B) Vec(U) \
+    Vec(X) & = (s Mat(I) - Mat(A))^(-1) Mat(B) Vec(U)
+$
+
+Substitution into the output equation gives the transfer function matrix
+
+$
+  Mat(H)(s) = Mat(C) (s Mat(I) - Mat(A))^(-1) Mat(B) + Mat(D)
+$
+
+For SISO systems, $Mat(H)(s)$ reduces to the scalar $G(s)$.
+
+== Block Diagram Algebra
+
+The following rules apply to scalar transfer functions, with zero initial conditions.
+
+#table(
+  columns: (1fr, 2fr),
+  align: center + horizon,
+  table.header([Connection], [Equivalent transfer function]),
+  [Cascade], $G_1 G_2$,
+  [Parallel], $G_1 plus.minus G_2$,
+  [Negative feedback], $G / (1 + G H)$,
+  [Positive feedback], $G / (1 - G H)$,
+)
+
+= Stability Analysis
+
+== Polynomial Stability
+
+A real polynomial is *Hurwitz* (stable) if all its roots satisfy $Re(s) < 0$.
+Poles are the roots of a reduced transfer function's denominator. A causal,
+proper continuous-time rational system is BIBO stable iff all poles lie
+strictly in the left half-plane.
+
+Input--output stability of one channel does not by itself establish internal
+stability when unstable modes may be hidden by pole--zero cancellation.
+
+== Routh Table
+
+Write $a(s) = a_0 s^n + a_1 s^(n-1) + dots + a_n$, with real coefficients and $a_0 > 0$:
+
+#table(
+  columns: (0.8fr, 1fr, 1fr, 1fr, 0.5fr),
+  align: center + horizon,
+  inset: (x: 5pt, y: 6pt),
+  table.header([Power], [Column 0], [Column 1], [Column 2], []),
+  $s^n$, $r_(0,0) = a_0$, $r_(0,1) = a_2$, $r_(0,2) = a_4$, $dots$,
+  $s^(n-1)$, $r_(1,0) = a_1$, $r_(1,1) = a_3$, $r_(1,2) = a_5$, $dots$,
+  $s^(n-2)$, $r_(2,0)$, $r_(2,1)$, $r_(2,2)$, $dots$,
+  $dots.v$, $dots.v$, $dots.v$, $dots.v$, [],
+  $s^0$, $r_(n,0)$, [], [], [],
+)
+
+For $i >= 2$, use the preceding two rows:
+
+$
+  r_(i,j) = -1 / r_(i-1,0) mat(
+    delim: "|",
+    r_(i-2,0), r_(i-2,j+1);
+    r_(i-1,0), r_(i-1,j+1),
+  )
+$
+
+Missing entries are zero. Positive rescaling of a row preserves the stability test.
+
+*Routh criterion*
+
+$
+  a(s) " is Hurwitz" quad <==> quad r_(i,0) > 0 quad (i = 0, ..., n)
+$
+
+- Positive coefficients are necessary, but are not sufficient in general.
+- For parameter-dependent coefficients, require every first-column entry to be
+  strictly positive and intersect the resulting inequalities.
+- A zero pivot requires special handling before continuing the recursion;
+  a zero first-column entry does not satisfy the strict stability test.
+
+#block(breakable: false)[
+  == Robust Stability
+
+  An *interval polynomial family* has independently varying real coefficients:
+
+  $
+    cal(P) = {a(s) = sum_(i=0)^n a_i s^(n-i) : a_i in [underline(a)_i, overline(a)_i]}
+  $
+
+  Assume a fixed degree and $0 < underline(a)_0 <= overline(a)_0$.
+  The family is *robustly stable* if every member is Hurwitz.
+
+  *Kharitonov theorem*
+
+  The entire family is Hurwitz iff its four Kharitonov polynomials are Hurwitz.
+  Construct them by repeating the following endpoint patterns in the *descending-power*
+  order $a_0, a_1, ..., a_n$:
+
+  #table(
+    columns: (0.7fr, 1fr, 1fr, 1fr, 1fr, 1fr),
+    align: center + horizon,
+    inset: (x: 5pt, y: 6pt),
+    table.header([Poly.], [$a_0$], [$a_1$], [$a_2$], [$a_3$], [Repeat]),
+    $K_1$, $underline(a)_0$, $underline(a)_1$, $overline(a)_2$, $overline(a)_3$, [LLUU],
+    $K_2$, $underline(a)_0$, $overline(a)_1$, $overline(a)_2$, $underline(a)_3$, [LUUL],
+    $K_3$, $overline(a)_0$, $underline(a)_1$, $underline(a)_2$, $overline(a)_3$, [ULLU],
+    $K_4$, $overline(a)_0$, $overline(a)_1$, $underline(a)_2$, $underline(a)_3$, [UULL],
+  )
+
+  Here L and U select the lower bound $underline(a)_i$ and upper bound $overline(a)_i$, respectively.
+  Test all four with Routh; checking only the all-lower and all-upper polynomials
+  is insufficient. The theorem concerns independent coefficient intervals;
+  correlated parameter dependence need not fill the entire interval family.
+]
+
+= Feedback Stabilization and Design
+
+== Internal Stability and the Gang of Four
+
+For the negative-feedback interconnection
+
+$
+  u_1 = w_1 - y_1, quad y_2 = P u_1, quad
+  u_2 = w_2 + y_2, quad y_1 = C u_2
+$
+
+*Internal stability* means all eight transfer functions from the two external inputs
+$(w_1, w_2)$ to the four internal signals $(u_1, u_2, y_1, y_2)$ are stable.
+
+Define the sensitivity $S$ and complementary sensitivity $T$:
+
+$
+  S = 1 / (1 + P C), quad T = (P C) / (1 + P C), quad S + T = 1
+$
+
+Solving the loop equations gives
+
+$
+  u_1 & = S w_1 - C S w_2, quad & y_2 & = P S w_1 - T w_2 \
+  u_2 & = P S w_1 + S w_2, quad & y_1 & = T w_1 + C S w_2
+$
+
+Hence the eight channels reduce to the four distinct transfer functions
+$S$, $C S$, $P S$, and $T$; all four must be stable.
+
+== Closed-Loop Characteristic Polynomial
+
+Write the plant and controller in coprime form:
+
+$
+  P(s) = b(s) / a(s), quad C(s) = q(s) / p(s), quad
+  gcd(a, b) = gcd(p, q) = 1
+$
+
+Then
+
+$
+  1 + P C = (a p + b q) / (a p), quad d(s) := a(s) p(s) + b(s) q(s)
+$
+
+and the *Gang of Four matrix* is
+
+$
+  mat(S, C S; P S, T) = 1 / d(s) mat(a p, a q; b p, b q)
+$
+
+Assume $P$ and $C$ are *proper* (numerator degree does not exceed denominator degree)
+and $1 + P(infinity) C(infinity) != 0$ so the feedback loop is well posed.
+Under these conditions, the following are equivalent:
+
+- The feedback interconnection is internally stable.
+- $d(s) = a p + b q$ is Hurwitz.
+- Forming $P C$ involves no pole--zero cancellation in $Re(s) >= 0$,
+  and any one of $S$, $C S$, $P S$, or $T$ is stable.
+
+If either $P$ or $C$ is strictly proper, the well-posedness condition is automatic.
+Check $d(s)$ before cancelling cross-factors between the plant and controller;
+a stable reference-to-output transfer function alone can hide unstable internal dynamics.
+
+== PI Stabilization
+
+A proportional--integral controller has
+
+$
+  C(s) = K_P + K_I / s = (K_P s + K_I) / s
+$
+
+For $P = b slash a$, the resulting characteristic polynomial is
+
+$
+  d(s) = s a(s) + (K_P s + K_I) b(s)
+$
+
+Construct its Routh table and solve the strict first-column inequalities for
+$K_P, K_I$. Check properness and well-posedness as above. If $K_I = 0$, reduce
+the controller to its proportional form and recompute $d(s)$ using coprime factors.
+
+== Pole Placement Design
+
+Given desired closed-loop poles $lambda_1, ..., lambda_N$, form
+
+$
+  c(s) = product_(i=1)^N (s - lambda_i)
+$
+
+Choose poles in $Re(s) < 0$ for stability; nonreal poles must occur in conjugate
+pairs for a real-coefficient controller.
+
+For $P = b slash a$ and $C = q slash p$, impose the polynomial identity
+
+$
+  a(s) p(s) + b(s) q(s) = c(s)
+$
+
+Choose a controller order, parameterize $p,q$, then equate coefficients of
+each power of $s$. The unknown controller coefficients enter linearly.
+For a first-order controller,
+
+$
+  p(s) = p_0 s + p_1, quad q(s) = q_0 s + q_1
+$
+
+so the matching equation becomes
+
+$
+  p_0 s a(s) + p_1 a(s) + q_0 s b(s) + q_1 b(s) = c(s)
+$
+
+Normalize the common scale of $p,q$ consistently with the leading coefficient
+of $c$. A chosen controller order may not admit a solution; check the coefficient
+equations, properness, well-posedness, and the resulting internal stability.
