@@ -33,7 +33,7 @@ $
 $
 The transfer function matrix is given by
 $
-  Mat(G)(s) = Mat(C) (s Mat(I) - Mat(A))^(-1) Mat(B) + Mat(D)
+  Mat(H)(s) = Mat(C) (s Mat(I) - Mat(A))^(-1) Mat(B) + Mat(D)
 $
 
 #line()
@@ -61,7 +61,7 @@ Here $sigma(t)$ denotes the unit step and $delta(t)$ the unit impulse.
 
 The bilateral (two-sided) Laplace transform is
 $
-  X(s) = cal(L)_b {x(t)} = integral_(-infinity)^infinity x(t) #e^(-s t) dif t.
+  X(s) = cal(L)_"b" {x(t)} := integral_(-infinity)^infinity x(t) #e^(-s t) dif t
 $
 #block(sticky: true)[*Common transform pairs*]
 
@@ -93,7 +93,7 @@ A bare sinusoid or constant extending over all time has no nonempty bilateral RO
 
 *Properties*
 
-Let $cal(L)_b {x(t)} = X(s)$ and $cal(L)_b {y(t)} = Y(s)$,
+Let $cal(L)_"b" {x(t)} = X(s)$ and $cal(L)_"b" {y(t)} = Y(s)$,
 with ROCs $R_X$ and $R_Y$.
 
 #block[
@@ -115,9 +115,8 @@ with ROCs $R_X$ and $R_Y$.
   )
 ]
 
-The convolution is $(x * y)(t) = integral_(-infinity)^infinity x(tau) y(t - tau) dif tau$.
-Differentiation assumes the required boundary terms vanish as $t -> plus.minus infinity$;
-derivatives include impulses caused by jumps.
+- The convolution is defined as
+  $ (x * y)(t) := integral_(-infinity)^infinity x(tau) y(t - tau) dif tau $
 
 *ROC rules and conditions*
 
@@ -126,17 +125,17 @@ derivatives include impulses caused by jumps.
   ROC to the right of the rightmost pole, a left-sided signal to the left of
   the leftmost pole, and a two-sided signal between poles.
 
-- The accumulated integral and the convolution integrals must exist.
-
 - The Fourier transform is obtained as $X(j omega)$ when the imaginary axis
-  lies in the ROC. For causal signals, the initial and final value theorems
+  lies in the ROC.
+
+- For causal signals, the initial and final value theorems
   below also apply, subject to their stated conditions.
 
 == Unilateral Laplace Transform
 
 The unilateral (one-sided) Laplace transform uses the $0^-$ convention:
 $
-  X_+(s) = cal(L)_+ {x(t)} = integral_(0^-)^infinity x(t) #e^(-s t) dif t.
+  X_+(s) = cal(L)_+ {x(t)} := integral_(0^-)^infinity x(t) #e^(-s t) dif t
 $
 For a causal signal, $X_+(s) = X(s)$.
 
@@ -190,39 +189,35 @@ Write $x_c, y_c$ for their causal extensions, retaining any impulses at zero.
   )
 ]
 
-For $n >= 1$, the general derivative formula is
-$
-  cal(L)_+ {x^((n))(t)} = s^n X_+(s)
-  - sum_(k=0)^(n-1) s^(n-1-k) x^((k))(0^-).
-$
-The required pre-initial derivatives must exist, and the boundary terms at
-$infinity$ must vanish. Derivatives include any impulses at jumps.
-For ordinary signals, the delayed signal is
-#box($x_c (t - t_0) = x(t - t_0) sigma(t - t_0)$) and causal convolution is
-$integral_0^t x(tau) y(t - tau) dif tau$.
+- For $n >= 1$, the general derivative formula is
+  $
+    cal(L)_+ {x^((n))(t)} = s^n X_+(s)
+    - sum_(k=0)^(n-1) s^(n-1-k) x^((k))(0^-)
+  $
 
-- The simple delay formula applies to the causal extension. Shifting a
-  signal with nonzero prehistory can introduce extra terms. Negative time
-  scaling or reversal cannot be inferred from $X_+(s)$ alone.
+- For ordinary signals, the delayed signal is
+  $x_c (t - t_0) := x(t - t_0) sigma(t - t_0)$
+  and the causal convolution is defined as
+  $ (x_c * y_c)(t) := integral_0^t x(tau) y(t - tau) dif tau $
 
 - Unilateral ROCs are right half-planes, possibly the whole plane.
   The same open-ROC convention and existence conditions apply; cancellation
   of terms may enlarge the guaranteed regions in the table.
 
-- The functions $1$ and $sigma(t)$ both transform to $1 / s$, but their
+- The signals $x(t) = 1$ and $x(t) = sigma(t)$ both transform to $1 slash s$, but their
   pre-initial values are $1$ and $0$, respectively. Thus their derivatives
-  transform to $0$ and $1$, consistently with $(dif sigma(t)) / (dif t) = delta(t)$.
+  transform to $0$ and $1$, consistently with $dif sigma(t) slash dif t = delta(t)$.
 
 *Initial and final value theorems*
 
 - *Initial value:*
-  $ x(0^+) = lim_(s -> +infinity) s X_+(s). $
+  $ x(0^+) = lim_(s -> +infinity) s X_+(s) $
   The limit is taken along the positive real axis. The finite right-hand
   value must exist, and $x$ must have no impulse or impulse derivatives at
-  the origin. This gives $x(0^+)$, not the $x(0^-)$ in the derivative rule.
+  the origin. This gives $x(0^+)$, not at the initial time $0^-$ of the transform.
 
 - *Final value:*
-  $ lim_(t -> infinity) x(t) = lim_(s -> 0^+) s X_+(s). $
+  $ lim_(t -> infinity) x(t) = lim_(s -> 0^+) s X_+(s) $
   For rational transforms, check that every pole of $s X_+(s)$, after
   cancellation, lies strictly in the open left half-plane. Equivalently,
   $X_+(s)$ may have a simple pole at zero, while all its other poles must
