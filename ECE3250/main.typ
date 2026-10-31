@@ -542,20 +542,142 @@ $
   a(s) p(s) + b(s) q(s) = Delta_"des" (s)
 $
 
-Choose a controller order, parameterize $p,q$, then equate coefficients of
-each power of $s$. The unknown controller coefficients enter linearly.
-For a first-order controller,
+Coefficient matching gives linear equations in the controller coefficients.
+
+Use descending coefficients, with $deg a = n >= 1$, $deg b <= n$, and $gcd(a, b) = 1$:
 
 $
-  p(s) = p_0 s + p_1, quad q(s) = q_0 s + q_1
+  a(s) = a_0 s^n + dots.h + a_n, quad b(s) = b_0 s^n + dots.h + b_n, quad a_0 != 0
 $
 
-so the matching equation becomes
+Pad $b$ to degree $n$ and set $a_i = b_i = 0$ outside $0 <= i <= n$.
+Bold $Mat(T),Mat(S)$ distinguish matrices from scalar GoF $T,S$.
+
+#block(sticky: true)[*Toeplitz Matrices*]
+
+A *Toeplitz matrix* is constant along each diagonal. The two convolution matrices are
 
 $
-  p_0 s a(s) + p_1 a(s) + q_0 s b(s) + q_1 b(s) = Delta_"des" (s)
+  Mat(T)(a, k) = mat(
+    a_0, 0, dots.h, 0;
+    a_1, a_0, dots.down, dots.v;
+    dots.v, dots.v, dots.down, dots.v;
+    a_n, a_(n-1), dots.h, a_(n-k+1);
+    dots.v, dots.v, dots.down, dots.v;
+    0, 0, dots.h, a_n;
+  ), quad
+  Mat(T)(b, k) = mat(
+    b_0, 0, dots.h, 0;
+    b_1, b_0, dots.down, dots.v;
+    dots.v, dots.v, dots.down, dots.v;
+    b_n, b_(n-1), dots.h, b_(n-k+1);
+    dots.v, dots.v, dots.down, dots.v;
+    0, 0, dots.h, b_n;
+  )
 $
 
-Normalize the common scale of $p,q$ consistently with the leading coefficient
-of $Delta_"des" (s)$. A chosen controller order may not admit a solution; check the coefficient
-equations, properness, well-posedness, and the resulting internal stability.
+For $k >= 1$, each has $n+k$ rows and $k$ columns; equivalently,
+
+$
+  [Mat(T)(a, k)]_(i,j) := a_(i-j)
+$
+
+Here $i = 0, ..., n+k-1$ and $j = 0, ..., k-1$.
+Each column is the coefficient vector shifted one position farther down.
+
+For $h(s) = h_0 s^(k-1) + dots.h + h_(k-1)$, let $gamma_i$ be the descending
+coefficients of $a h$. Multiplication becomes
+
+$
+  Mat(T)(a, k) vec(h_0, dots.v, h_(k-1)) = vec(gamma_0, dots.v, gamma_(n+k-1)),
+  quad gamma_i = sum_(j=0)^(k-1) a_(i-j) h_j
+$
+
+Thus $k$ counts multiplier coefficients; the multiplier degree is at most $k-1$.
+
+#block(sticky: true)[*Sylvester's Resultant Matrix*]
+
+Combine the two convolution matrices:
+
+$
+  Mat(S)(a, b, k) := mat(Mat(T)(a, k), Mat(T)(b, k)) in RR^((n+k) times (2k))
+$
+
+It maps the stacked coefficients of $p,q$ (degrees at most $k-1$) to those of $a p + b q$.
+
+#block(breakable: false)[
+  The square case $k=n$ has size $2n times 2n$ and detects common factors:
+
+  $
+    gcd(a, b) = 1 quad <==> quad det(Mat(S)(a, b, n)) != 0
+  $
+]
+
+For coprime $a,b$, the rank is $min(2k, n+k)$:
+
+#table(
+  columns: (0.7fr, 1.3fr, 2.5fr),
+  align: center + horizon,
+  inset: (x: 5pt, y: 6pt),
+  table.header([$k$], [Rank], [Coefficient matching]),
+  $k < n$, [$2k$; full column rank], [Unique if consistent; otherwise no solution.],
+  $k = n$, [$2n$; nonsingular], [Unique solution for every target.],
+  $k > n$, [$n+k$; full row rank], [Always solvable; $k-n$ free parameters.],
+)
+
+To see the rank count, $a p + b q = 0$ implies $p = b h$, $q = -a h$ by coprimeness.
+The degree bounds give $deg h <= k-n-1$, so the nullity is $max(k-n, 0)$.
+
+#block(sticky: true)[*Proper Controller Parameterization*]
+
+For nominal controller order $m >= 0$, choose target degree $N=n+m$ and write
+
+$
+             p(s) & = p_0 s^m + dots.h + p_m, quad q(s) = q_0 s^m + dots.h + q_m \
+  Delta_"des" (s) & = d_0 s^(n+m) + dots.h + d_(n+m)
+$
+
+The intended denominator degree requires $p_0 != 0$; the monic target above has $d_0=1$.
+There are $2m+2$ unknown coefficients and $n+m+1$ matching equations:
+
+$
+  underbrace(
+    mat(
+      a_0, 0, dots.h, 0, b_0, 0, dots.h, 0;
+      a_1, a_0, dots.down, dots.v, b_1, b_0, dots.down, dots.v;
+      dots.v, dots.v, dots.down, dots.v, dots.v, dots.v, dots.down, dots.v;
+      a_n, a_(n-1), dots.h, a_(n-m), b_n, b_(n-1), dots.h, b_(n-m);
+      dots.v, dots.v, dots.down, dots.v, dots.v, dots.v, dots.down, dots.v;
+      0, 0, dots.h, a_n, 0, 0, dots.h, b_n;
+    ),
+    Mat(S)(a, b, m+1),
+  ) vec(p_0, dots.v, p_m, q_0, dots.v, q_m)
+  = vec(d_0, d_1, dots.v, d_(n+m))
+$
+
+With $k=m+1$, every target coefficient vector is matchable iff $m >= n-1$. \
+At $m=n-1$, the solution is unique; for $m>n-1$, there are $m+1-n$ free parameters.
+For $m<n-1$, only consistent targets are attainable.
+
+#block(breakable: false)[
+  *Strictly Proper Controller Parameterization*
+
+  For $m >= 1$, set $q_0=0$. Comparing the leading and remaining coefficients gives
+
+  $
+    p_0 = d_0 / a_0, quad
+    Mat(S)(a, b, m) vec(p_1, dots.v, p_m, q_1, dots.v, q_m)
+    = vec(d_1 - a_1 d_0 / a_0, dots.v, d_n - a_n d_0 / a_0, d_(n+1), dots.v, d_(n+m))
+  $
+]
+
+The right-hand side contains the $n+m$ coefficients of
+$Delta_"des" (s) - p_0 s^m a(s)$, whose degree is at most $n+m-1$.
+
+Here $k=m$: every target coefficient vector is matchable iff $m >= n$.
+At $m=n$ the solution is unique; for $m>n$ there are $m-n$ free parameters.
+Lower orders require a consistent target.
+
+These bounds concern coefficient matching. Check $p_0 != 0$, reduce $p,q$ to coprime form,
+then verify actual controller order, properness, well-posedness, and internal stability.
+The target's leading coefficient fixes their common scale.
