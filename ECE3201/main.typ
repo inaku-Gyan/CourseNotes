@@ -658,3 +658,59 @@ $
   C_"D" = (dif Q) / (dif V) = tau_"T" / V_"T" I
 $
 
+= MOSFET
+
+Metal-Oxide-Semiconductor Field-Effect Transistor (MOSFET).
+
+- NMOS: n-channel MOSFET, where the majority carriers are electrons.
+- PMOS: p-channel MOSFET, where the majority carriers are holes.
+
+#figure(image("assets/image-4.png"), caption: "An NMOS")
+
+#figure(image("assets/image-5.png", width: 80%), caption: "Circuit symbols for NMOS")
+
+- $L$: channel length
+
+- $W$: channel width
+
+- $t_"ox"$: oxide thickness
+
+- $C_"ox" = epsilon_"ox" slash t_"ox"$: gate oxide capacitance per unit area
+
+- $abs(Q) = C_"ox" W L (v_"GS" - V_"t")$: total charge in the channel
+
+- $V_"t"$: threshold voltage, the minimum gate-to-source voltage required to create a conducting channel between the source and drain terminals.
+
+- $v_"OV" := v_"GS" - V_"t"$ is the *overdrive voltage*.
+
+== Triode Region ($0 < v_"DS" < v_"OV"$)
+
+#figure(image("assets/image-6.png", width: 50%))
+
+Assume the channel voltage is $v(x)$:
+$
+  i_"D" space = space
+  underbrace(C_"ox" W (v_"OV" - v(x)), "linear charge density")
+  space
+  underbrace(mu_n (dif v(x)) / (dif x), "drift velocity")
+$
+Integrating along the channel from $x = 0$ to $L$ gives the drain current:
+$
+  i_"D" = mu_n C_"ox" W / L (v_"OV" v_"DS" - 1/2 v_"DS"^2)
+$
+
+==== Small $v_"DS"$ Approximation
+
+When $v_"DS" << v_"OV"$, the drain current can be approximated as
+$
+  i_"D" & = mu_n C_"ox" W / L v_"OV" v_"DS" \
+        & = k'_n (W / L) v_"OV" v_"DS" \
+        & = k_n v_"OV" v_"DS"
+$
+where
+- $k'_n := mu_n C_"ox"$ is the process transconductance parameter,
+- $k_n := mu_n C_"ox" W slash L$ is the MOSFET transconductance parameter.
+
+The MOSFET behaves like a resistor with resistance
+$R_"DS" = 1 / (k_n v_"OV")$,
+controlled by the overdrive voltage (gate voltage).
