@@ -714,3 +714,38 @@ where
 The MOSFET behaves like a resistor with resistance
 $R_"DS" = 1 / (k_n v_"OV")$,
 controlled by the overdrive voltage (gate voltage).
+
+== Saturation Region ($v_"DS" >= v_"OV"$)
+
+==== Channel Pinch-Off
+
+#figure(image("assets/image-8.png", width: 60%))
+
+#grid(
+  columns: (1fr, 1fr),
+  figure(image("assets/image-7.png")),
+  [
+    When $v_"DS" = v_"OV"$, the charge density at the drain end of the channel is zero:
+    $ rho = C_"ox" (v_"OV" - V_"DS") = 0 $
+    So the channel is pinched off at the drain end,
+    and the drain current remains constant for $v_"DS" >= v_"OV"$.
+    $ i_"D" = 1/2 mu_n C_"ox" W / L v_"OV"^2 = 1/2 k_n v_"OV"^2 $
+  ],
+)
+
+==== Channel Length Modulation
+
+With futher increase of $v_"DS"$,
+the pinch-off point moves slowly towards the source,
+effectively reducing the channel length from $L$ to $L - Delta L$.
+
+#figure(image("assets/image-9.png", width: 80%))
+
+$
+  i_"D" & = 1/2 mu_n C_"ox" W / (L - Delta L) v_"OV"^2 \
+        & approx 1/2 mu_n C_"ox" W / L v_"OV"^2 (1 + lambda v_"DS")
+          = 1/2 k_n v_"OV"^2 (1 + lambda v_"DS") \
+$
+where $lambda$ is the channel length modulation parameter,
+and $lambda v_"DS"= Delta L slash L << 1$.
+
